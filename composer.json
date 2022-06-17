@@ -1,11 +1,11 @@
 {
-    "name": "veriablesign/datatable",
+    "name": "variablesign/datatable",
     "description": "A simple datatable package for Laravel",
     "keywords": [
-        "veriablesign",
+        "variablesign",
         "datatable"
     ],
-    "homepage": "https://github.com/veriablesign/datatable",
+    "homepage": "https://github.com/variablesign/datatable",
     "license": "MIT",
     "type": "library",
     "authors": [
@@ -17,7 +17,7 @@
         }
     ],
     "require": {
-        "php": ">=7.2",
+        "php": ">=7.0",
         "illuminate/support": ">=7.0"
     },
     "require-dev": {
@@ -26,12 +26,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Veriablesign\\Datatable\\": "src"
+            "VariableSign\\Datatable\\": "src"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Veriablesign\\Datatable\\Tests\\": "tests"
+            "VariableSign\\Datatable\\Tests\\": "tests"
         }
     },
     "scripts": {
@@ -45,10 +45,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Veriablesign\\Datatable\\DatatableServiceProvider"
+                "VariableSign\\Datatable\\DatatableServiceProvider"
             ],
             "aliases": {
-                "Datatable": "Veriablesign\\Datatable\\Facades\\Datatable"
+                "Datatable": "VariableSign\\Datatable\\Facades\\Datatable"
             }
         }
     }

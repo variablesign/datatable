@@ -1,8 +1,10 @@
 <?php
 
-namespace Veriablesign\Datatable;
+namespace VariableSign\Datatable;
 
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
+use VariableSign\Datatable\Console\DatatableMakeCommand;
 
 class DatatableServiceProvider extends ServiceProvider
 {
@@ -23,6 +25,10 @@ class DatatableServiceProvider extends ServiceProvider
             $this->publishes([
                 __DIR__.'/../config/datatable.php' => config_path('datatable.php'),
             ], 'config');
+
+            $this->commands([
+                DatatableMakeCommand::class,
+            ]);
 
             // Publishing the views.
             /*$this->publishes([
@@ -51,6 +57,11 @@ class DatatableServiceProvider extends ServiceProvider
     {
         // Automatically apply the package configuration
         $this->mergeConfigFrom(__DIR__.'/../config/datatable.php', 'datatable');
+
+        // Define blade directive
+        Blade::if('hasrecords', function ($value) {
+            return $value->isNotEmpty() || ($value->isEmpty() && request('search'));
+        });
 
         // Register the main class to use with the facade
         $this->app->singleton('datatable', function () {

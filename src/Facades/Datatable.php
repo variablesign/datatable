@@ -1,11 +1,13 @@
 <?php
 
-namespace Veriablesign\Datatable\Facades;
+namespace VariableSign\Datatable\Facades;
 
 use Illuminate\Support\Facades\Facade;
 
 /**
- * @see \Veriablesign\Datatable\Contracts\Datatable
+ * @method static mixed render(?string $view = null, array $data = [])
+ * 
+ * @see \VariableSign\Datatable\Contracts\Datatable
  */
 class Datatable extends Facade
 {

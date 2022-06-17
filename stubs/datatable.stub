@@ -1,0 +1,84 @@
+<?php
+
+namespace {{ datatableNamespace }};
+
+use {{ namespacedModel }};
+use Illuminate\Database\Eloquent\Builder;
+use VariableSign\Datatable\Contracts\Datatable;
+
+class {{ class }} extends Datatable
+{
+    /**
+     * The default sortable column.
+     *
+     * The column value must be the same as defined 
+     * in the 'name' key in the columns() array
+     * 
+     * @var string
+     */
+    protected $sortColumn = 'id';
+
+    /**
+     * The default sort direction.
+     *
+     * @var string
+     */
+    protected $sortDirection = 'asc';
+
+    /**
+     * A name to describe your records.
+     *
+     * @var string
+     */
+    protected $name = '{{ modelLowerPlural }}';
+
+    /**
+     * Set a custom placeholder text for the search input.
+     *
+     * @var string
+     */
+    protected $searchLanguage = null;
+
+    /**
+    * Column definitions.
+    *
+    * @return array
+    */
+    protected function columns(): array
+    {
+        // return [
+        //     'id' => [
+        //         'title' => '#',
+        //         'name' => 'id',
+        //         'search' => false,
+        //         'sort' => true
+        //     ],
+        //     'name' => [
+        //         'title' => 'Full Name',
+        //         'name' => 'name',
+        //         'search' => [
+        //             'users.first_name',
+        //             'users.last_name'
+        //         ],
+        //         'sort' => true
+        //     ],
+        //     'date' => [
+        //         'title' => 'Date Added',
+        //         'name' => 'created_at',
+        //         'search' => false,
+        //         'sort' => true
+        //     ],
+        //     'actions' => null
+        // ];
+    }
+
+    /**
+     * Query builder.
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    protected function query(): Builder
+    {
+        return {{ model }}::query();
+    }
+}
