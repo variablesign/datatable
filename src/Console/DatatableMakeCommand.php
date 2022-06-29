@@ -77,7 +77,8 @@ class DatatableMakeCommand extends GeneratorCommand
             Str::replaceFirst($this->rootNamespace(), 'App\\Datatables\\', $this->qualifyClass($this->getNameInput()))
         );
 
-        $modelLowerPlural = Str::plural(Str::lower($model));
+        $splitModelName = implode(' ', Str::ucsplit($model));
+        $modelLowerPlural = Str::plural(Str::lower($splitModelName));
 
         $replace = [
             '{{ datatableNamespace }}' => $namespace,
@@ -159,7 +160,7 @@ class DatatableMakeCommand extends GeneratorCommand
     protected function getOptions(): array
     {
         return [
-            ['model', null, InputOption::VALUE_OPTIONAL, 'The name of the model.']
+            ['model', 'm', InputOption::VALUE_OPTIONAL, 'The name of the model.']
         ];
     }
 }

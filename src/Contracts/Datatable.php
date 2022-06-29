@@ -80,9 +80,15 @@ abstract class Datatable
      */
     private $total;
 
+    /**
+     * @var bool
+     */
+    private $onlyTrashed;
+
     public function __construct()
     {
         $this->total = request('get_total') ? true : false;
+        $this->onlyTrashed = request('only_trashed') ? true : false;
         $this->search = request('search');
         $this->sort = request('sort_column') ?? $this->sortColumn;
         $this->perPage = request('per_page') ?? $this->perPage ?? config('datatable.per_page', 10);
@@ -112,6 +118,9 @@ abstract class Datatable
         })
         ->when($this->sortColumn, function ($query) {
             return $query->orderBy($this->sortColumn, $this->sortDirection);
+        })
+        ->when($this->onlyTrashed, function ($query) {
+            return $query->onlyTrashed();
         });
 
         // Return total records only
