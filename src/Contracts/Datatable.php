@@ -6,6 +6,36 @@ use Illuminate\Database\Eloquent\Builder;
 
 abstract class Datatable
 {
+    protected array $columns = [];
+
+    protected array $editedColumns = [];
+
+    protected mixed $classAttribute;
+
+    protected mixed $idAttribute;
+
+    protected mixed $attributes;
+
+    protected ?string $text;
+
+    protected ?string $columnName;
+
+    protected mixed $column;
+
+    protected mixed $searchable;
+
+    protected array $searchColumns;
+
+    protected bool $sortable;
+
+    protected ?string $indexColumn;
+
+    protected array $sortColumns;
+
+    protected object $rowAttributes;
+
+    protected Builder $query;
+
     /**
      * A name to describe your records.
      *
@@ -35,13 +65,6 @@ abstract class Datatable
     protected $perPage = null;
 
     /**
-     * The maximum number of records to display per page.
-     *
-     * @var null|int
-     */
-    protected $maxPerPage = null;
-
-    /**
      * Option for number of records to display per page.
      *
      * @var null|array
@@ -56,166 +79,194 @@ abstract class Datatable
     protected $searchLanguage = null;
 
     /**
-     * @var array
+     * Instantiate a new datatable instance.
+     *
+     * @return void
      */
-    private $searchable = [];
-
-    /**
-     * @var string
-     */
-    private $search;
-
-    /**
-     * @var string
-     */
-    private $sort;
-
-    /**
-     * @var object
-     */
-    private $query;
-
-    /**
-     * @var bool
-     */
-    private $total;
-
-    /**
-     * @var bool
-     */
-    private $onlyTrashed;
-
     public function __construct()
     {
-        $this->total = request('get_total') ? true : false;
-        $this->onlyTrashed = request('only_trashed') ? true : false;
-        $this->search = request('search');
-        $this->sort = request('sort_column') ?? $this->sortColumn;
-        $this->perPage = request('per_page') ?? $this->perPage ?? config('datatable.per_page', 10);
-        $this->maxPerPage = $this->maxPerPage ?? config('datatable.max_per_page', 50);
-        $this->perPage = ($this->perPage > $this->maxPerPage) ? $this->maxPerPage : $this->perPage;
-        $this->perPageOptions = $this->perPageOptions ?? config('datatable.per_page_options', []);
-        $this->sortDirection = request('sort_direction') ?? $this->sortDirection;
-        $this->sortColumn = $this->sortColumns($this->sort) ?? $this->sortColumn;
-        $this->searchable = $this->searchColumns();
+        $this->boot();
         $this->query = $this->query();
-        $this->checkErrors();
+        $this->perPage = $this->request('per_page') ?? $this->perPage ?? $this->config('per_page', 10);
+        $this->sortDirection = $this->request('sort_direction') ?? $this->sortDirection;
+        $this->sortColumn = $this->getSortable()[$this->request('sort_column')] ?? $this->sortColumn;
     }
 
-    final public function render(?string $view = null, array $data = []): mixed
+    protected function addColumn(string $name, ?callable $callable = null): self
     {
-        $results = $this->query->when($this->search, function ($query) {
-            return $query->where(function ($query) {
-                $terms = explode(' ', $this->search);
-                foreach ($this->searchable ?? [] as $column) {
-                    $query->orWhereIn($column, $terms);
-                }
+        $this->searchable = false;
+        $this->sortable = false;
+        $this->classAttribute = null;
+        $this->attributes = null;
 
-                foreach ($this->searchable ?? [] as $column) {
-                    $query->orWhere($column,'like','%'.$this->search.'%');
-                }
-            });
-        })
-        ->when($this->sortColumn, function ($query) {
-            return $query->orderBy($this->sortColumn, $this->sortDirection);
-        })
-        ->when($this->onlyTrashed, function ($query) {
-            return $query->onlyTrashed();
-        });
-
-        // Return total records only
-        if ($this->total === true) {
-            $totalRecords = $results->count();
-            $lastPage = ceil($totalRecords / $this->perPage);
-
-            return response()->json([
-                'total' => $totalRecords,
-                'last_page' => ($lastPage <= 0) ? 1 : $lastPage
-            ]);
-        } 
-
-        // Paginate
-        $allData = [
-            'paginator' => $results->simplePaginate($this->perPage)->withQueryString(),
-            'columns' => $this->headerColumns(),
-            'searchable' => empty($this->searchColumns()) ? false : $this->searchColumns(),
-            'sortable' => empty($this->sortColumns()) ? false : array_values($this->sortColumns()),
-            'per_page_options' => $this->perPageOptions,
-            'language' => [
-                'search' => $this->getSearchLang()
-            ]
+        $callable = is_callable($callable) ? call_user_func($callable, $this) : null;
+        $options = [
+            'name' => $callable->columnName ?? null,
+            'text' => $callable->text ?? null,
+            'searchable' => $callable->searchable ?? null,
+            'sortable' => $callable->sortable ?? null,
+            'classAttribute' => $callable->classAttribute ?? null,
+            'attributes' => $callable->attributes ?? null
         ];
 
-        // Return view with results
-        if ($view !== null && $this->total === false) {
-            return view($view, $data, $allData);
+        if ($name == $this->sortColumn) {
+            $options['direction'] = $this->sortDirection;
+        }
+        
+        $options = array_filter($options);
+        $this->column = $name;
+        $this->columns[$name] = empty($options) ? null : $options;
+        return $this;
+    }
+
+    protected function editColumn(mixed $value = null): self
+    {
+        $this->editedColumns[$this->column] = $value;
+
+        return $this;
+    }
+
+    protected function rowAttributes(callable $callable): self
+    {
+        $this->rowAttributes = $callable;
+
+        return $this;
+    }
+
+    protected function indexColumn(): self
+    {
+        $this->indexColumn = $this->column;
+
+        return $this;
+    }
+
+    protected function name(?string $name = null): self
+    {
+        $this->columnName = $name;
+
+        return $this;
+    }
+
+    protected function text(?string $text = null): self
+    {
+        $this->text = $text;
+
+        return $this;
+    }
+
+    protected function setClassAttribute(null|string|callable $class = null): self
+    {
+        $this->classAttribute = $class;
+
+        return $this;
+    }
+
+    protected function setIdAttribute(null|string|callable $id = null): self
+    {
+        $this->idAttribute = $id;
+
+        return $this;
+    }
+
+    protected function setAttributes(null|array|callable $attributes = null): self
+    {
+        $this->attributes = $attributes;
+
+        return $this;
+    }
+
+    public function formatAttributes(?array $attributes = null): ?string
+    {
+        $html = null;
+        foreach ($attributes ?? [] as $key => $value) {
+            $html .= $key . '="' . $value . '" ';
         }
 
-        return $allData;
+        return trim($html);
     }
 
-    private function searchColumns(?bool $keys = false): array
+    protected function searchable(bool|array $columns = true): self
     {
-        $columns = collect($this->columns());
+        $this->searchable = $columns;
 
-        $columns = $columns->filter(function ($value, $key) {
-            $search = data_get($value, 'search', false);
-            return $search;
-        })->map(function ($item, $key) {
-            if (is_array(data_get($item, 'search'))) {
-                return data_get($item, 'search');
+        return $this;
+    }
+
+    protected function sortable(): self
+    {
+        $this->sortable = true;
+
+        return $this;
+    }
+
+    public function getSearchable(): array
+    {
+        $columns = collect($this->columns);
+        $columns = $columns->filter()->map(function ($item, $key) {
+            if (is_array($item)) {
+                if (array_key_exists('searchable', $item)) {
+                    if (is_bool($item['searchable'])) {
+                        return $key;
+                    }
+
+                    if (is_array($item['searchable'])) {
+                        return $item['searchable'];
+                    }              
+                }
             }
-
-            return data_get($item, 'name');
         });
 
-        return $keys ? $columns->keys()->toArray() : $columns->flatten()->filter()->toArray();
+        return $columns->filter()->flatten()->all();
     }
 
-    private function sortColumns(?string $key = null): null|string|array
+    public function getSortable(): array
     {
-        $columns = collect($this->columns());
+        $columns = collect($this->columns);
+        $columns = $columns->filter()->transform(function ($item, $key) {
+            if (is_array($item)) {
+                if (array_key_exists('sortable', $item)) {
+                    if (array_key_exists('name', $item)) {
+                        return $item['name'];
+                    }
 
-        $columns = $columns->filter(function ($value, $key) {
-            return data_get($value, 'sort', false);
-        })->map(function ($item, $key) {
-            return data_get($item, 'name');
-        });
-
-        $columns = $columns->filter()->toArray();
-
-        return $key ? data_get($columns, $key) : $columns;
-    }
-
-    private function headerColumns(): array
-    {
-        $columns = collect($this->columns());
-
-        $columns = $columns->map(function ($item, $key) {
-            if ((is_array($item) && array_search($this->sort, $item, true)) || $this->sort == $key) {
-                return array_merge($item, ['direction' => $this->sortDirection]);
+                    return $key;
+                }
             }
-
-            return $item;
         });
 
-        return $columns->toArray();
+        return $columns->filter()->flip()->all();
     }
 
-    private function getSearchLang(): ?string
+    public function getSearchLanguage(): ?string
     {
         if ($this->searchLanguage != null) {
             return $this->searchLanguage;
         }
 
-        $values = $this->searchColumns(true);
+        $columns = collect($this->columns);
+        $columns = $columns->filter()
+            ->map(function ($item, $key) {
+                if (is_array($item)) {
+                    if (array_key_exists('searchable', $item)) {
+                        if (is_bool($item['searchable'])) {
+                            return $key;
+                        }
 
-        $values = array_map(function($value) {
-            return str_replace(['_', '-'], ' ', $value);
-        }, $values);
+                        if (is_array($item['searchable'])) {
+                            return $item['searchable'];
+                        }              
+                    }
+                }
+            })
+            ->filter()
+            ->keys()
+            ->map(function ($item, $key) {
+                return str_replace(['_', '-'], ' ', $item);
+            })
+            ->all();
 
-        $total = count($values);
-        $last = ($total <= 1) ?: array_pop($values);
+        $total = count($columns);
+        $last = ($total <= 1) ?: array_pop($columns);
 
         if ($total == 0) {
             return 'Search ' . $this->name . '...';
@@ -229,25 +280,141 @@ abstract class Datatable
 
         $name = 'Search ' . $this->name . ' by ';
 
-        return $name . implode(', ', $values) . $last;
+        return $name . implode(', ', $columns) . $last;
     }
 
-    private function checkErrors()
+    public function getName(): string
     {
-        if (!is_null($this->perPageOptions) && !is_array($this->perPageOptions)) {
-            throw new \Exception("The perPageOptions property must be an array or null, ".gettype($this->perPageOptions)." given");
-        }
-
-        if (!is_null($this->maxPerPage) && !is_int($this->maxPerPage)) {
-            throw new \Exception("The maxPerPage property must be an integer or null, ".gettype($this->maxPerPage)." given");
-        }
-
-        if ($this->sortColumn == null) {
-            throw new \Exception("The default sortable column cannot be null");
-        }
+        return $this->name;
     }
 
-    abstract protected function query(): Builder;
+    public function getPerPageOptions(): array
+    {
+        return $this->perPageOptions ?? $this->config('per_page_options', []);
+    }
 
-    abstract protected function columns(): array;
+    public function getColumns(): array
+    {
+        return $this->columns;
+    }
+
+    public function isIndexColumn(?string $column): bool
+    {
+        if ($this->indexColumn ?? false) {
+            return ($this->indexColumn == $column);
+        }
+        return false;
+    }
+
+    public function getEditedColumns(): array
+    {
+        return $this->editedColumns;
+    }
+
+    public function modifyColumn(string $key, $model): mixed
+    {
+        if (array_key_exists($key, $this->getEditedColumns())) {
+            $value = $this->getEditedColumns()[$key];
+            $value = is_callable($value) ? call_user_func($value, $model) : $value;
+
+            return $value;
+        }
+
+        return data_get($model, $key, '—');
+    }
+
+    public function modifyRow(string $key, $model): mixed
+    {
+        $rowAttributes = call_user_func($this->rowAttributes, $this);
+        $options = [
+            'id' => $rowAttributes->idAttribute ?? null,
+            'class' => $rowAttributes->classAttribute ?? null,
+            'attributes' => $rowAttributes->attributes ?? null
+        ];
+
+        if (is_callable($rowAttributes->idAttribute ?? null)) {
+            $options['id'] = call_user_func($rowAttributes->idAttribute, $model);
+        }
+
+        if (is_callable($rowAttributes->classAttribute ?? null)) {
+            $options['class'] = call_user_func($rowAttributes->classAttribute, $model);
+        }
+
+        if (is_callable($rowAttributes->attributes ?? null)) {
+            $options['attributes'] = call_user_func($rowAttributes->attributes, $model);
+        }
+
+        $options = array_map(function ($value) {
+            return is_array($value) ? $this->formatAttributes($value) : $value;
+        }, $options);
+        
+        return data_get($options, $key);
+    }
+
+    final public function render(?string $view = null, array $data = []): mixed
+    {
+        $query = $this->query->when($this->request('search'), function ($query) {
+            return $query->where(function ($query) {
+                $terms = explode(' ', $this->request('search'));
+                foreach ($this->getSearchable() ?? [] as $column) {
+                    $query->orWhereIn($column, $terms);
+                }
+
+                foreach ($this->getSearchable() ?? [] as $column) {
+                    $query->orWhere($column,'like','%'. $this->request('search') .'%');
+                }
+            });
+        })
+        ->when($this->sortColumn, function ($query) {
+            return $query->orderBy($this->sortColumn, $this->sortDirection);
+        });
+
+        // Return only total records
+        if ($this->request('get_total_records') ? true : false) {
+            $totalRecords = $query->count();
+            $lastPage = ceil($totalRecords / $this->perPage);
+
+            return response()->json([
+                'total' => $totalRecords,
+                'last_page' => ($lastPage <= 0) ? 1 : $lastPage
+            ]);
+        } 
+
+        $results = [
+            'paginator' => $query->simplePaginate($this->perPage)->withQueryString(),
+            'table' => $this
+        ];
+
+        // Return with custom view
+        if ($view != null) {
+            return view($view, $data, $results);
+        } 
+
+        return view('datatable::datatable.index', $data, $results);
+    }
+
+    public function request(string $key, bool $keyOnly = false): ?string
+    {
+        $request = data_get($this->config('request_map'), $key);
+
+        if ($keyOnly) {
+            return $request;
+        }
+
+        $request = e(strip_tags(request($request)));
+        return empty($request) ? null : $request;
+    }
+
+    protected function config(?string $key = null, mixed $default = null): mixed
+    {
+        $key = $key ? 'datatable.' . $key : 'datatable';
+
+        return config($key, $default);
+    }
+
+    abstract public function query(): Builder;
+
+    abstract public function boot();
+
+    abstract public function start();
 }

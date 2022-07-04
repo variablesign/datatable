@@ -1,0 +1,1 @@
+Your search <strong>{{ $table->request('search') }}</strong> did not match any {{ $table->getName() }}.
