@@ -45,9 +45,11 @@ return [
     | Request Mapping
     |--------------------------------------------------------------------------
     |
-    | You can customize the request to your preferred names.
-    | Example: changing 'search' => 'q' and 'sort_column' => 'sort':
-    | https://example.com?search=&sort_column=  <==>  https://example.com?q=&sort=
+    | You can customize the request names to your preferred names.
+    | Example: 'search' => 'q', 'sort_column' => 'sort', 'per_page' => 'limit'
+    | https://example.com?search=jane&sort_column=name&per_page=25
+    | ==>
+    | https://example.com?q=jane&sort=name&limit=25
     |
     */
 
