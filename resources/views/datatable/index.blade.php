@@ -15,9 +15,9 @@
                         $index = $paginator->firstItem() + $loop->index;
                     @endphp
                     <tr
-                        class="{{ $table->modifyRow('class', $row) }}"
-                        id="{{ $table->modifyRow('id', $row) }}"
-                        {!! $table->modifyRow('attributes', $row) !!}
+                        class="{{ $table->modifyRow('class', $row, $index) }}"
+                        id="{{ $table->modifyRow('id', $row, $index) }}"
+                        {!! $table->modifyRow('attributes', $row, $index) !!}
                     >
                         @foreach ($table->getColumns() as $key => $column)
                             <td 
@@ -27,7 +27,7 @@
                                 @if ($table->isIndexColumn($key))
                                     {{ $index }}
                                 @else
-                                    {{ $table->modifyColumn($key, $row) }}
+                                    {{ $table->modifyColumn($key, $row, $index) }}
                                 @endif
                             </td>
                         @endforeach

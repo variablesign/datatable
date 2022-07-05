@@ -57,21 +57,21 @@ class {{ class }} extends Datatable
         //             ->sortable()
         //             ->setClassAttribute('d-none d-lg-table-cell');
         //     })
-        //     ->editColumn(function ($model) {
+        //     ->editColumn(function ($model, $index) {
         //         return $model->created_at->format('d M, Y');
         //     });
 
         // $this->addColumn('actions')
-        //     ->editColumn(function ($model) {
+        //     ->editColumn(function ($model, $index) {
         //         return view('datatable.actions', compact('model'));
         //     });
 
         // $this->rowAttributes(function ($row) {
         //         return $row->setClassAttribute('cursor-pointer')
-        //             ->setIdAttribute(function ($model) {
+        //             ->setIdAttribute(function ($model, $index) {
         //                 return 'id-' . $model->id;
         //             })
-        //             ->setAttributes(function ($model) {
+        //             ->setAttributes(function ($model, $index) {
         //                 return [
         //                     'data-href' => route('manage.users.show', $model->id),
         //                     'data-turbo-frame' => 'page-frame'

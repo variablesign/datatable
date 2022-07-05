@@ -12,14 +12,14 @@
                         href="#" 
                         data-href="{{ request()->fullUrlWithQuery([
                             'page' => 1, 
-                            $table->request('sort_column', true) => array_search($key, $table->getSortable()),
+                            $table->request('sort_column', true) => $table->setSortColumn($key),
                             $table->request('sort_direction', true) => ($table->request('sort_direction') == 'asc') || (!$table->request('sort_direction') && data_get($column, 'direction') == 'asc') ? 'desc' : 'asc'
                         ]) }}" 
                         data-turbo-frame="datatable-frame"
                     >
                         {{ data_get($column, 'text') }}
 
-                        @if (($table->request('sort_column') == array_search($key, $table->getSortable())) && $table->request('sort_direction') || data_get($column, 'direction'))
+                        @if (($table->request('sort_column') == $table->setSortColumn($key)) && $table->request('sort_direction') || data_get($column, 'direction'))
                             <span class="d-inline-block ms-1 {{ ($table->request('sort_direction') == 'desc') || (!$table->request('sort_direction') && data_get($column, 'direction') == 'desc') ? 'rotate-180' : '' }}">↑</span>
                         @endif
                     </a>

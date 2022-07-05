@@ -94,6 +94,8 @@ abstract class Datatable
 
     protected function addColumn(string $name, ?callable $callable = null): self
     {
+        $this->columnName = null;
+        $this->text = null;
         $this->searchable = false;
         $this->sortable = false;
         $this->classAttribute = null;
@@ -237,6 +239,20 @@ abstract class Datatable
         return $columns->filter()->flip()->all();
     }
 
+    public function getNameable(): array
+    {
+        $columns = collect($this->columns);
+        $columns = $columns->filter()->transform(function ($item, $key) {
+            if (is_array($item)) {
+                if (array_key_exists('name', $item)) {
+                    return $item['name'];
+                }
+            }
+        });
+
+        return $columns->filter()->all();
+    }
+
     public function getSearchLanguage(): ?string
     {
         if ($this->searchLanguage != null) {
@@ -261,6 +277,8 @@ abstract class Datatable
             ->filter()
             ->keys()
             ->map(function ($item, $key) {
+                $item = data_get($this->getNameable(), $item) ?? $item;
+                $item = str($item)->afterLast('.');
                 return str_replace(['_', '-'], ' ', $item);
             })
             ->all();
@@ -298,6 +316,11 @@ abstract class Datatable
         return $this->columns;
     }
 
+    public function setSortColumn(?string $key): string
+    {
+        return array_search($key, $this->getSortable());
+    }
+
     public function isIndexColumn(?string $column): bool
     {
         if ($this->indexColumn ?? false) {
@@ -311,19 +334,21 @@ abstract class Datatable
         return $this->editedColumns;
     }
 
-    public function modifyColumn(string $key, $model): mixed
+    public function modifyColumn(string $key, $model, $index): mixed
     {
         if (array_key_exists($key, $this->getEditedColumns())) {
             $value = $this->getEditedColumns()[$key];
-            $value = is_callable($value) ? call_user_func($value, $model) : $value;
+            $value = is_callable($value) ? call_user_func($value, $model, $index) : $value;
 
             return $value;
         }
 
+        $key = str($key)->afterLast('.');
+
         return data_get($model, $key, '—');
     }
 
-    public function modifyRow(string $key, $model): mixed
+    public function modifyRow(string $key, $model, $index): mixed
     {
         $rowAttributes = call_user_func($this->rowAttributes, $this);
         $options = [
@@ -333,15 +358,15 @@ abstract class Datatable
         ];
 
         if (is_callable($rowAttributes->idAttribute ?? null)) {
-            $options['id'] = call_user_func($rowAttributes->idAttribute, $model);
+            $options['id'] = call_user_func($rowAttributes->idAttribute, $model, $index);
         }
 
         if (is_callable($rowAttributes->classAttribute ?? null)) {
-            $options['class'] = call_user_func($rowAttributes->classAttribute, $model);
+            $options['class'] = call_user_func($rowAttributes->classAttribute, $model, $index);
         }
 
         if (is_callable($rowAttributes->attributes ?? null)) {
-            $options['attributes'] = call_user_func($rowAttributes->attributes, $model);
+            $options['attributes'] = call_user_func($rowAttributes->attributes, $model, $index);
         }
 
         $options = array_map(function ($value) {
