@@ -79,6 +79,20 @@ abstract class Datatable
     protected $searchLanguage = null;
 
     /**
+     * Shows the table header.
+     *
+     * @var bool
+     */
+    protected $showHeader = true;
+
+    /**
+     * Shows the table pagination.
+     *
+     * @var bool
+     */
+    protected $showPagination = true;
+
+    /**
      * Instantiate a new datatable instance.
      *
      * @return void
@@ -327,6 +341,16 @@ abstract class Datatable
             return ($this->indexColumn == $column);
         }
         return false;
+    }
+
+    public function showHeader(): bool
+    {
+        return $this->showHeader;
+    }
+
+    public function showPagination(): bool
+    {
+        return $this->showPagination;
     }
 
     public function getEditedColumns(): array
