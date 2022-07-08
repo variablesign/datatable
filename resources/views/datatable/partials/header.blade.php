@@ -5,7 +5,7 @@
 
                 @if (array_key_exists('sortable', $column ?? []))
                     <th 
-                        class="text-nowrap {{ data_get($column, 'classAttribute') }}"
+                        class="text-nowrap h-14 {{ data_get($column, 'classAttribute') }}"
                         {!! $table->formatAttributes(data_get($column, 'attributes')) !!}
                     >
                         <a 
@@ -27,7 +27,7 @@
                     </th>
                 @else
                     <th 
-                        class="text-nowrap {{ data_get($column, 'classAttribute') }}"
+                        class="text-nowrap h-14 {{ data_get($column, 'classAttribute') }}"
                         {!! $table->formatAttributes(data_get($column, 'attributes')) !!}
                     >
                         <span class="fw-normal text-gray-400 dark:text-gray-300">
