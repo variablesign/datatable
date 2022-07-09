@@ -31,8 +31,15 @@ abstract class Datatable
     protected ?string $indexColumn;
 
     protected array $sortColumns;
-
+    
     protected object $rowAttributes;
+
+    private array $paginationStyles = [
+        'default',
+        'minimal',
+        'simple',
+        'advanced'
+    ];
 
     protected Builder $query;
 
@@ -91,6 +98,13 @@ abstract class Datatable
      * @var bool
      */
     protected $showPagination = true;
+
+    /**
+     * Pagination style.
+     *
+     * @var null|string
+     */
+    protected $paginationStyle = null;
 
     /**
      * Instantiate a new datatable instance.
@@ -320,6 +334,26 @@ abstract class Datatable
         return $this->name;
     }
 
+    public function isTextPaginationControl(): bool
+    {
+        return data_get($this->config('text_pagination_controls'), 'enable', false);
+    }
+
+    public function getTextPaginationControl(string $key): ?string
+    {
+        return data_get($this->config('text_pagination_controls'), $key);
+    }
+
+    public function isPaginationStyle(): bool
+    {
+        return in_array($this->config('pagination_style'), $this->paginationStyles);
+    }
+
+    public function getPaginationStyle(): string
+    {
+        return $this->paginationStyle ?? $this->config('pagination_style');
+    }
+
     public function getPerPageOptions(): array
     {
         return $this->perPageOptions ?? $this->config('per_page_options', []);
@@ -461,9 +495,12 @@ abstract class Datatable
         return config($key, $default);
     }
 
+    public function start()
+    {
+        return view('manage.user.start');
+    }
+
     abstract public function query(): Builder;
 
     abstract public function boot();
-
-    abstract public function start();
 }

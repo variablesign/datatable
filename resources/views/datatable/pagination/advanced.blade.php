@@ -1,7 +1,6 @@
 @if ($table->showPagination())
     <div 
         class="d-flex align-items-center px-2" 
-        id="table-paginator-data" 
         data-paginator-url="{{ request()->fullUrlWithQuery([
             $table->request('get_total_records', true) => 'true'
         ]) }}"
@@ -14,7 +13,7 @@
                     class="btn dropdown-toggle p-2 hover:bg-gray-50 dark:hover:bg-dark-600" 
                     {!! !empty($table->getPerPageOptions()) ? 'data-bs-toggle="dropdown"' : '' !!}
                 >
-                    {{ $paginator->firstItem() ? $paginator->firstItem() : 0 }} — {{ $paginator->firstItem() ? (($paginator->firstItem() - 1) + $paginator->count()) : 0 }} of 
+                    {{ $paginator->firstItem() ? number_format($paginator->firstItem()) : 0 }} — {{ $paginator->firstItem() ? number_format((($paginator->firstItem() - 1) + $paginator->count())) : 0 }} of 
                     <span class="ms-1" data-paginator-total>
                         <svg class="w-7 h-7 animate-spin" viewBox="0 0 24 24" fill="none">
                             <g stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -49,7 +48,7 @@
         <span class="ms-auto me-4">
             <div class="btn-group dropup">
                 <button type="button" class="btn dropdown-toggle p-2 hover:bg-gray-50 dark:hover:bg-dark-600" data-bs-toggle="dropdown">
-                    {{ $paginator->currentPage() }} of 
+                    {{ number_format($paginator->currentPage()) }} of 
                     <span class="ms-1" data-paginator-last>
                         <svg class="w-7 h-7 animate-spin" viewBox="0 0 24 24" fill="none">
                             <g stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -74,16 +73,24 @@
         <span class="d-flex">
             @if (!$paginator->onFirstPage())
                 <button type="button" class="btn p-2 me-1 hover:bg-gray-50 dark:hover:bg-dark-600" data-href="{{ $paginator->previousPageUrl() }}" data-turbo-frame="datatable-frame">
-                    <svg class="w-9 h-9" viewBox="0 0 24 24" fill="none">
-                        <path d="M4.75 11.98h14.5M11.25 18.25 4.75 12l6.5-6.25" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                    </svg>
+                    @if ($table->isTextPaginationControl())
+                        {!! $table->getTextPaginationControl('previous') !!}
+                    @else 
+                        <svg class="w-9 h-9" viewBox="0 0 24 24" fill="none">
+                            <path d="M4.75 11.98h14.5M11.25 18.25 4.75 12l6.5-6.25" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                    @endif
                 </button>    
             @endif
             @if ($paginator->hasMorePages())
                 <button type="button" class="btn p-2 me-1 hover:bg-gray-50 dark:hover:bg-dark-600" data-href="{{ $paginator->nextPageUrl() }}" data-turbo-frame="datatable-frame">
-                    <svg class="w-9 h-9" viewBox="0 0 24 24" fill="none">
-                        <path d="M4.75 11.98h14.5M12.75 5.75l6.5 6.25-6.5 6.25" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                    </svg>
+                    @if ($table->isTextPaginationControl())
+                        {!! $table->getTextPaginationControl('next') !!}
+                    @else 
+                        <svg class="w-9 h-9" viewBox="0 0 24 24" fill="none">
+                            <path d="M4.75 11.98h14.5M12.75 5.75l6.5 6.25-6.5 6.25" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                    @endif
                 </button>
             @endif
         </span>

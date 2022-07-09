@@ -93,10 +93,10 @@ class {{ class }} extends Datatable
     /**
      * Display a start page resource.
      *
-     * @return mixed
+     * @return \Illuminate\Support\Facades\View
      */
     public function start()
     {
-        // return view('datatable.start');
+        // return view('{{ modelLowerPlural }}.start');
     }
 }

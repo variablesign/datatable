@@ -5,9 +5,7 @@
             data-language-search="{{ $table->getSearchLanguage() }}"
             data-searchable="{{ empty($table->getSearchable()) ? 'false' : 'true' }}"
         >     
-            @include('datatable::datatable.partials.header', [
-                'table' => $table
-            ])
+            @include('datatable::datatable.header')
 
             <tbody>
                 @forelse ($paginator as $row)
@@ -35,23 +33,22 @@
                 @empty
                     <tr>
                         <td class="text-center" colspan="20">
-                            @include('datatable::datatable.partials.query', [
-                                'table' => $table
-                            ])
+                            @include('datatable::datatable.search.empty')
                         </td>
                     </tr>
                 @endforelse
             </tbody>
         </table>
 
-        @include('datatable::datatable.partials.pagination', [
-            'paginator' => $paginator,
-            'table' => $table
-        ])
+        @includeWhen($table->isPaginationStyle(), 'datatable::datatable.pagination.' . $table->getPaginationStyle())
 
     @else
         
-        {!! $table->start() !!}
+        @if ($table->start())
+            {!! $table->start() !!}
+        @else
+            @include('datatable::datatable.start')
+        @endif
 
     @endhasrecords
 </turbo-frame>

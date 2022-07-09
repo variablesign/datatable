@@ -1,0 +1,62 @@
+@if ($table->showPagination())
+    <div 
+        class="d-flex align-items-center px-2" 
+    >
+        <!-- Pagination Total -->
+        <span>
+            <div class="btn-group dropup">
+                <button 
+                    type="button" 
+                    class="btn dropdown-toggle p-2 hover:bg-gray-50 dark:hover:bg-dark-600" 
+                    {!! !empty($table->getPerPageOptions()) ? 'data-bs-toggle="dropdown"' : '' !!}
+                >
+                    {{ $paginator->firstItem() ? number_format($paginator->firstItem()) : 0 }} — {{ $paginator->firstItem() ? number_format((($paginator->firstItem() - 1) + $paginator->count())) : 0 }}
+                </button>
+                @if (!empty($table->getPerPageOptions()))
+                    <ul class="dropdown-menu">
+                        @foreach ($table->getPerPageOptions() as $key => $value)
+                            <li>
+                                <button 
+                                    class="dropdown-item" 
+                                    type="button" 
+                                    data-href="{{ request()->fullUrlWithQuery([
+                                        'page' => 1, 
+                                        $table->request('per_page', true) => $key
+                                    ]) }}" 
+                                    data-turbo-frame="datatable-frame" 
+                                    @disabled($key == $paginator->perPage())
+                                >{{ $value }}</button>
+                            </li>                        
+                        @endforeach
+                    </ul>
+                @endif
+            </div>
+        </span>
+
+        <!-- Pagination Links -->
+        <span class="d-flex ms-auto">
+            @if (!$paginator->onFirstPage())
+                <button type="button" class="btn p-2 me-1 hover:bg-gray-50 dark:hover:bg-dark-600" data-href="{{ $paginator->previousPageUrl() }}" data-turbo-frame="datatable-frame">
+                    @if ($table->isTextPaginationControl())
+                        {!! $table->getTextPaginationControl('previous') !!}
+                    @else 
+                        <svg class="w-9 h-9" viewBox="0 0 24 24" fill="none">
+                            <path d="M4.75 11.98h14.5M11.25 18.25 4.75 12l6.5-6.25" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                    @endif
+                </button>    
+            @endif
+            @if ($paginator->hasMorePages())
+                <button type="button" class="btn p-2 me-1 hover:bg-gray-50 dark:hover:bg-dark-600" data-href="{{ $paginator->nextPageUrl() }}" data-turbo-frame="datatable-frame">
+                    @if ($table->isTextPaginationControl())
+                        {!! $table->getTextPaginationControl('next') !!}
+                    @else 
+                        <svg class="w-9 h-9" viewBox="0 0 24 24" fill="none">
+                            <path d="M4.75 11.98h14.5M12.75 5.75l6.5 6.25-6.5 6.25" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                    @endif
+                </button>
+            @endif
+        </span>
+    </div>
+@endif

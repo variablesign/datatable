@@ -42,6 +42,35 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Pagination Style
+    |--------------------------------------------------------------------------
+    |
+    | The default pagination styles for your tables.
+    | You can choose from 'default', 'minimal', 'simple', 'advanced'.
+    |
+    */
+
+    'pagination_style' => 'advanced',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Text Pagination Controls
+    |--------------------------------------------------------------------------
+    |
+    | By default, icons are used as the pagination controls.
+    | You can use text based pagination control by enabling this feature.
+    | HTML code is also supported for the 'previous' & 'next' values.
+    |
+    */
+
+    'text_pagination_controls' => [
+        'enable' => true,
+        'previous' => 'Prev',
+        'next' => 'Next'
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Request Mapping
     |--------------------------------------------------------------------------
     |
