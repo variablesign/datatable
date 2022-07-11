@@ -20,7 +20,7 @@
                         >
                             {{ data_get($column, 'text') }}
 
-                            @if (($table->request('sort_column') == $table->setSortColumn($key)) && $table->request('sort_direction') || data_get($column, 'direction'))
+                            @if ((($table->request('sort_column') == $table->setSortColumn($key)) && $table->request('sort_direction')) || (!$table->request('sort_column') && data_get($column, 'direction')))
                                 <span class="d-inline-block ms-1 {{ ($table->request('sort_direction') == 'desc') || (!$table->request('sort_direction') && data_get($column, 'direction') == 'desc') ? 'rotate-180' : '' }}">↑</span>
                             @endif
                         </a>
