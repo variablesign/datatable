@@ -3,6 +3,7 @@
 namespace VariableSign\Datatable\Contracts;
 
 use Illuminate\Database\Eloquent\Builder;
+use stdClass;
 
 abstract class Datatable
 {
@@ -15,6 +16,8 @@ abstract class Datatable
     protected mixed $idAttribute;
 
     protected mixed $attributes;
+
+    protected ?array $tableAttributes;
 
     protected ?string $text;
 
@@ -32,7 +35,7 @@ abstract class Datatable
 
     protected array $sortColumns;
     
-    protected object $rowAttributes;
+    protected ?object $rowAttributes;
 
     private array $paginationStyles = [
         'default',
@@ -146,6 +149,7 @@ abstract class Datatable
         $options = array_filter($options);
         $this->column = $name;
         $this->columns[$name] = empty($options) ? null : $options;
+
         return $this;
     }
 
@@ -159,6 +163,24 @@ abstract class Datatable
     protected function rowAttributes(callable $callable): self
     {
         $this->rowAttributes = $callable;
+
+        return $this;
+    }
+
+    protected function tableAttributes(callable $callable): self
+    {
+        $this->idAttribute = null;
+        $this->classAttribute = null;
+        $this->attributes = null;
+
+        $callable = is_callable($callable) ? call_user_func($callable, $this) : null;
+        $options = [
+            'idAttribute' => $callable->idAttribute ?? null,
+            'classAttribute' => $callable->classAttribute ?? null,
+            'attributes' => $callable->attributes ?? null
+        ];
+        
+        $this->tableAttributes = array_filter($options);
 
         return $this;
     }
@@ -334,6 +356,11 @@ abstract class Datatable
         return $this->name;
     }
 
+    public function getTableAttributes(): ?array
+    {
+        return $this->tableAttributes ?? null;
+    }
+
     public function isTextPaginationControl(): bool
     {
         return data_get($this->config('text_pagination_controls'), 'enable', false);
@@ -408,7 +435,8 @@ abstract class Datatable
 
     public function modifyRow(string $key, $model, $index): mixed
     {
-        $rowAttributes = call_user_func($this->rowAttributes, $this);
+        $this->rowAttributes = $this->rowAttributes ?? null;
+        $rowAttributes = $this->rowAttributes ? call_user_func($this->rowAttributes, $this) : null;
         $options = [
             'id' => $rowAttributes->idAttribute ?? null,
             'class' => $rowAttributes->classAttribute ?? null,
@@ -495,10 +523,7 @@ abstract class Datatable
         return config($key, $default);
     }
 
-    public function start()
-    {
-        return view('manage.user.start');
-    }
+    abstract public function start();
 
     abstract public function query(): Builder;
 

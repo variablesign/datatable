@@ -1,7 +1,9 @@
 <turbo-frame id="datatable-frame">
     @hasrecords($paginator)
         <table 
-            class="table table-list table-hover" 
+            class="{{ data_get($table->getTableAttributes(), 'classAttribute', 'table table-list table-hover') }}"
+            id="{{ data_get($table->getTableAttributes(), 'idAttribute') }}"
+            {!! $table->formatAttributes(data_get($table->getTableAttributes(), 'attributes')) !!}
             data-language-search="{{ $table->getSearchLanguage() }}"
             data-searchable="{{ empty($table->getSearchable()) ? 'false' : 'true' }}"
         >     

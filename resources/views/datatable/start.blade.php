@@ -1,5 +1,5 @@
 <div class="text-center mx-auto py-10 max-w-27">
-    <svg class="w-21 h-21" viewBox="0 0 512 512">
+    <svg class="w-21 h-21 mb-4" viewBox="0 0 512 512">
         <g>
             <circle fill="#E6E7E7" cx="256" cy="282.6" r="196.3" />
             <ellipse fill="#B3B4B5" cx="256.1" cy="407.3" rx="121.2" ry="8.3" />

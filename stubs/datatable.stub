@@ -63,7 +63,7 @@ class {{ class }} extends Datatable
 
         // $this->addColumn('actions')
         //     ->editColumn(function ($model, $index) {
-        //         return view('datatable.actions', compact('model'));
+        //         return view('{{ modelLowerPlural }}.actions', compact('model'));
         //     });
 
         // $this->rowAttributes(function ($row) {
@@ -85,7 +85,7 @@ class {{ class }} extends Datatable
      *
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    protected function query(): Builder
+    public function query(): Builder
     {
         return {{ model }}::query();
     }

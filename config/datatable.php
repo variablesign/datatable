@@ -50,7 +50,7 @@ return [
     |
     */
 
-    'pagination_style' => 'advanced',
+    'pagination_style' => 'simple',
 
     /*
     |--------------------------------------------------------------------------
@@ -64,7 +64,7 @@ return [
     */
 
     'text_pagination_controls' => [
-        'enable' => true,
+        'enable' => false,
         'previous' => 'Prev',
         'next' => 'Next'
     ],
