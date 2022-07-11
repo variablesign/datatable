@@ -20,7 +20,7 @@ class {{ class }} extends Datatable
      * 
      * @var string
      */
-    protected $sortColumn = 'id';
+    protected $sortColumn = '{{ defaultColumn }}';
 
     /**
      * The default sort direction.

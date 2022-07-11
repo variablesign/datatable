@@ -73,6 +73,10 @@ class DatatableMakeCommand extends GeneratorCommand
 
         $model = class_basename($namespaceModel);
 
+        $modelClass = '\\' . $namespaceModel;
+
+        $defaultColumn = class_exists($modelClass) ? (new $modelClass)->{'getKeyName'}() : 'id';
+
         $namespace = $this->getNamespace(
             Str::replaceFirst($this->rootNamespace(), 'App\\Datatables\\', $this->qualifyClass($this->getNameInput()))
         );
@@ -89,6 +93,8 @@ class DatatableMakeCommand extends GeneratorCommand
             '{{model}}' => $model,
             '{{ modelLowerPlural }}' => $modelLowerPlural,
             '{{modelLowerPlural}}' => $modelLowerPlural,
+            '{{ defaultColumn }}' => $defaultColumn,
+            '{{defaultColumn}}' => $defaultColumn,
             '{{ class }}' => $class,
             '{{class}}' => $class,
         ];
