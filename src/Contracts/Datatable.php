@@ -19,6 +19,8 @@ abstract class Datatable
 
     protected ?array $tableAttributes;
 
+    protected ?array $wrapperAttributes;
+
     protected ?string $text;
 
     protected ?string $columnName;
@@ -172,12 +174,14 @@ abstract class Datatable
         $this->idAttribute = null;
         $this->classAttribute = null;
         $this->attributes = null;
+        $this->wrapperAttributes = null;
 
         $callable = is_callable($callable) ? call_user_func($callable, $this) : null;
         $options = [
             'idAttribute' => $callable->idAttribute ?? null,
             'classAttribute' => $callable->classAttribute ?? null,
-            'attributes' => $callable->attributes ?? null
+            'attributes' => $callable->attributes ?? null,
+            'wrapperAttributes' => $callable->wrapperAttributes ?? null
         ];
         
         $this->tableAttributes = array_filter($options);
@@ -223,6 +227,13 @@ abstract class Datatable
     protected function setAttributes(null|array|callable $attributes = null): self
     {
         $this->attributes = $attributes;
+
+        return $this;
+    }
+
+    protected function setWrapperAttributes(null|array $attributes = null): self
+    {
+        $this->wrapperAttributes = $attributes;
 
         return $this;
     }
