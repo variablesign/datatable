@@ -60,7 +60,7 @@ abstract class DataTable
     public function request(string $key): ?string
     {
         $request = data_get($this->config('request_map'), $key);
-        $request = e(strip_tags(request($request)));
+        $request = e(strip_tags(request($request, '')));
 
         return empty($request) ? null : $request;
     }
