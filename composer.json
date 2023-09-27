@@ -1,0 +1,54 @@
+{
+    "name": "variablesign/datatable",
+    "description": "A simple datatable for Laravel",
+    "keywords": [
+        "variablesign",
+        "datatable",
+        "data table",
+        "laravel",
+        "table"
+    ],
+    "homepage": "https://github.com/variablesign/datatable",
+    "license": "MIT",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Variable Sign",
+            "email": "variablesign@gmail.com",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.0.2",
+        "illuminate/support": "^9|^10"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^8",
+        "phpunit/phpunit": "^9"
+    },
+    "autoload": {
+        "psr-4": {
+            "VariableSign\\DataTable\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "VariableSign\\DataTable\\Tests\\": "tests"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "test-coverage": "vendor/bin/phpunit --coverage-html coverage"
+
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "VariableSign\\DataTable\\DataTableServiceProvider"
+            ]
+        }
+    }
+}

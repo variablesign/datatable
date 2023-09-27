@@ -1,0 +1,100 @@
+<?php
+
+namespace {{ datatableNamespace }};
+
+use {{ namespacedModel }};
+use App\Models\Unit;
+use VariableSign\DataTable\DataTable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\View\View;
+use VariableSign\DataTable\Facades\Column;
+
+class {{ datatableClass }} extends DataTable
+{
+    protected string $tableName = '{{ modelLowerPlural }}';
+
+    protected ?string $orderColumn = 'id';
+
+    protected string $orderDirection = 'asc';
+
+    protected bool $skipTotal = false;
+
+    protected bool $deepSearch = true;
+
+    protected function columns(): array
+    {
+        return [
+            Column::name('id')
+                ->alias('checkbox')
+                ->checkbox(),
+
+            Column::name('index')
+                ->alias('index')
+                ->title('#')
+                ->index(),
+
+            Column::name('staff_number')
+                ->title('Staff Number')
+                ->searchable(function (Builder $query, string $keyword) {
+                    $query->orWhere('staff_id', 'like', '%'. $keyword .'%');
+                })
+                ->sortable(['staff_id'])
+                ->edit(function (mixed $value, User $model, int $index) {
+                    return $model->staff_id;
+                }),
+
+            Column::name('name')
+                ->title('Name')
+                ->searchable(['first_name', 'last_name'])
+                ->sortable(['first_name', 'last_name'])
+                ->edit(function (mixed $value, {{ model }} $model, int $index) {
+                    return $model->first_name . ' ' . $model->last_name;
+                }),
+
+            Column::name('unit')
+                ->title('Management Unit')
+                ->searchable(function (Builder $query, string $keyword) {
+                    $query->orWhereHas('unit', function (Builder $query) use ($keyword) {
+                        $query->where('name', 'like', '%'. $keyword .'%');
+                    });
+                })
+                ->sortable(function (Builder $query, $direction) {
+                    $query->orderBy(Unit::select('name')->whereColumn('units.id', 'users.unit_id'), $direction);
+                })
+                ->edit(function (mixed $value, {{ model }} $model, int $index) {
+                    return data_get($model->unit, 'name');
+                }),
+
+            Column::name('actions')
+                ->attributes([
+                    'class' => 'w-0 p-2',
+                ])
+                ->edit(function (mixed $value, {{ model }} $model, int $index) {
+                    return view('user.actions', compact('model'));
+                })
+        ];
+    }
+
+    protected function rows({{ model }} $model, int $index): array
+    {
+        return [
+            'data-index' => $index,
+            'class' => $index % 2 ? 'bg-purple-100' : null
+        ];
+    }
+
+    protected function dataSource(): Builder
+    {
+        return {{ model }}::query();
+    }
+
+    protected function emptyState(): string|View
+    {
+        return 'Start adding records now!';
+    }
+
+    protected function notFound(?string $keyword): string|View
+    {
+        return 'No results found for ' . $keyword;
+    }
+}

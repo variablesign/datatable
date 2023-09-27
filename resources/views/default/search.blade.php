@@ -1,0 +1,1 @@
+<input type="search" name="{{ $datatable->getOption('request.map.search') }}" placeholder="{{ $datatable->getOption('search_placeholder') }}" value="{{ $datatable->request('search') }}" data-datatable-search-input>

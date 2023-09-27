@@ -1,0 +1,1 @@
+Your search <strong>{{ $keyword }}</strong> did not match any {{ $table }}.

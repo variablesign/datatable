@@ -1,0 +1,27 @@
+<?php
+
+namespace {{ datatableNamespace }};
+
+use {{ namespacedModel }};
+use VariableSign\DataTable\DataTable;
+use Illuminate\Database\Eloquent\Builder;
+
+class {{ datatableClass }} extends DataTable
+{
+    protected string $tableName = '{{ modelLowerPlural }}';
+
+    protected function columns(): array
+    {
+        return [];
+    }
+
+    protected function rows({{ model }} $model, int $index): array
+    {
+        return [];
+    }
+
+    protected function dataSource(): Builder
+    {
+        return {{ model }}::query();
+    }
+}
