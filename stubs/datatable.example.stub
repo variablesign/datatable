@@ -39,7 +39,7 @@ class {{ datatableClass }} extends DataTable
                     $query->orWhere('staff_id', 'like', '%'. $keyword .'%');
                 })
                 ->sortable(['staff_id'])
-                ->edit(function (mixed $value, User $model, int $index) {
+                ->edit(function (mixed $value, {{ model }} $model, int $index) {
                     return $model->staff_id;
                 }),
 

@@ -60,7 +60,7 @@ abstract class DataTable
     public function request(string $key): ?string
     {
         $request = data_get($this->config('request_map'), $key);
-        $request = e(strip_tags(request($request)));
+        $request = e(strip_tags(request($request, '')));
 
         return empty($request) ? null : $request;
     }
@@ -232,7 +232,9 @@ abstract class DataTable
 
     private function queryBuilder(): Builder|QueryBuilder
     {
-        $sortable = $this->getSortableColumns()->get($this->orderColumn);
+        $sortable = $this->getSortableColumns()
+            ->keyBy('name')
+            ->get($this->orderColumn);
 
         return $this->dataSource()
             ->when($this->request('search'), function ($query) {
