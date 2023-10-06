@@ -232,7 +232,9 @@ abstract class DataTable
 
     private function queryBuilder(): Builder|QueryBuilder
     {
-        $sortable = $this->getSortableColumns()->get($this->orderColumn);
+        $sortable = $this->getSortableColumns()
+            ->keyBy('name')
+            ->get($this->orderColumn);
 
         return $this->dataSource()
             ->when($this->request('search'), function ($query) {
