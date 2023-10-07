@@ -25,6 +25,8 @@ abstract class DataTable
 
     protected ?int $onEachSide = null;
 
+    protected ?bool $pushState = null;
+
     protected bool $skipTotal = false;
 
     protected bool $deepSearch = false;
@@ -114,6 +116,7 @@ abstract class DataTable
             'order_direction' => $this->orderDirection,
             'per_page' => $this->setPerPage(),
             'per_page_options' => $this->perPageOptions,
+            'push_state' => $this->pushState ?? $this->config('push_state'),
             'on_each_side' => $this->onEachSide ?? $this->config('on_each_side'),
             'search_placeholder' => $this->getSearchPlaceholder($this->searchPlaceholder),
             'request' => [
@@ -400,7 +403,7 @@ abstract class DataTable
             return __($item, [
                 'id' => $this->getOption('table_id'),
                 'url' => route($this->config('route.name'), $this->getRouteParameter()),
-                'push_state' => $this->config('push_state') ? 'true' : 'false'
+                'push_state' => $this->getOption('push_state') ? 'true' : 'false'
             ]);
         });
 
