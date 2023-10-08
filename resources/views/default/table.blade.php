@@ -4,7 +4,7 @@
             <thead>
                 <tr>
                     @foreach ($columns as $column)  
-                        <th class="{{ $column['responsive'] }} {{ $column['alignment'] }}">
+                        <th {!! $datatable->classAttributes([$column['alignment'], $column['responsive']]) !!}>
                             @if ($column['sortable'])
                                 <a href="#" data-datatable-order-column="{{ $column['alias'] }}" data-datatable-order-direction="{{ ($column['ordered'] && $column['direction'] == 'asc') ? 'desc' : 'asc' }}">
                                     {{ $column['title'] }}

@@ -85,7 +85,7 @@ abstract class DataTable
                 ],
                 'attributes' => $item->attributes,
                 'responsive' => $this->config('breakpoints.' . $item->responsive),
-                'alignment' => $this->config('alignment.' . $item->alignment)
+                'alignment' => $this->config('alignment.' . $item->alignment) ?? $this->config('alignment.left')
             ];
         });
 
@@ -310,7 +310,7 @@ abstract class DataTable
     public function formatAttributes(?array $attributes = null, string|array $mergeClass = null): string 
     {
         $attributes = $attributes ?: [];
-        $mergeClass = is_array($mergeClass) ? implode(' ', $mergeClass) : $mergeClass;
+        $mergeClass = is_array($mergeClass) ? implode(' ', array_filter($mergeClass)) : $mergeClass;
         $build = '';
 
         if ($mergeClass) {
@@ -332,6 +332,15 @@ abstract class DataTable
         }
 
         return trim($build);
+    }
+
+    public function classAttributes(?array $classes = null): string 
+    {
+        $classes = $classes ?? [];
+        $classes = array_filter($classes);
+        $classes = count($classes) > 0 ? trim(implode(' ', $classes)) : null;
+
+        return !is_null($classes) ? 'class="' . $classes . '"' : '';
     }
 
     public function rowAttributes(mixed $model, mixed $index): array

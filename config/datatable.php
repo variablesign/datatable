@@ -53,10 +53,12 @@ return [
     |--------------------------------------------------------------------------
     |
     | Set the center and right alignment classes for aligning columns columns.
+    | The "left" alignment is set as the default.
     |
     */
 
     'alignment' => [
+        'left' => 'text-left',
         'center' => 'text-center',
         'right' => 'text-right'
     ],
