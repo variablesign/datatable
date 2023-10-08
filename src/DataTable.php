@@ -307,7 +307,7 @@ abstract class DataTable
         return $data;
     }
 
-    public function formatAttributes(?array $attributes = null, string $mergeClass = null): string 
+    public function formatAttributes(?array $attributes = null, string|array $mergeClass = null): string 
     {
         $attributes = $attributes ?: [];
         $mergeClass = is_array($mergeClass) ? implode(' ', $mergeClass) : $mergeClass;
