@@ -18,6 +18,8 @@ class Column
 
     protected ?string $responsive = null;
 
+    protected ?string $alignment = null;
+
     protected bool|array|object $searchable = false;
 
     protected bool|array|object $sortable = false;
@@ -97,6 +99,13 @@ class Column
     public function responsive(string $breakpoint): self
     {
         $this->responsive = $breakpoint;
+
+        return $this;
+    }
+
+    public function align(string $alignment): self
+    {
+        $this->alignment = $alignment;
 
         return $this;
     }

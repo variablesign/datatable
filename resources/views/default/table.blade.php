@@ -4,7 +4,7 @@
             <thead>
                 <tr>
                     @foreach ($columns as $column)  
-                        <th class="{{ $column['responsive'] }}">
+                        <th class="{{ $column['responsive'] }} {{ $column['alignment'] }}">
                             @if ($column['sortable'])
                                 <a href="#" data-datatable-order-column="{{ $column['alias'] }}" data-datatable-order-direction="{{ ($column['ordered'] && $column['direction'] == 'asc') ? 'desc' : 'asc' }}">
                                     {{ $column['title'] }}
@@ -48,7 +48,7 @@
                                     data-datatable-checkbox="child">
                             </td>
                         @else
-                            <td {!! $datatable->formatAttributes($values['attributes'], $values['responsive']) !!}>
+                            <td {!! $datatable->formatAttributes($values['attributes'], [$values['responsive'], $values['alignment']]) !!}>
                                 {!! $values['value'] !!}
                             </td>
                         @endif
