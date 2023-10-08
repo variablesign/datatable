@@ -84,7 +84,8 @@ abstract class DataTable
                     'attributes' => $item->checkboxAttributes
                 ],
                 'attributes' => $item->attributes,
-                'responsive' => $this->config('breakpoints.' . $item->responsive)
+                'responsive' => $this->config('breakpoints.' . $item->responsive),
+                'alignment' => $this->config('alignment.' . $item->alignment)
             ];
         });
 
@@ -294,6 +295,7 @@ abstract class DataTable
 
                 $items[$key]['checkbox']['enabled'] = $column['checkbox']['enabled'];
                 $items[$key]['responsive'] = $column['responsive'];
+                $items[$key]['alignment'] = $column['alignment'];
             }
 
             $data[$index] = [
@@ -308,6 +310,7 @@ abstract class DataTable
     public function formatAttributes(?array $attributes = null, string $mergeClass = null): string 
     {
         $attributes = $attributes ?: [];
+        $mergeClass = is_array($mergeClass) ? implode(' ', $mergeClass) : $mergeClass;
         $build = '';
 
         if ($mergeClass) {
