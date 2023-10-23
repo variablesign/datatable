@@ -1,5 +1,5 @@
 @if ($datatable->hasRecords($paginator) && !$datatable->recordsNotFound($paginator))
-    <table>
+    <table {!! $datatable->formatAttributes($datatable->tableAttributes()) !!}>
         @if ($datatable->getOption('show_header'))
             <thead>
                 <tr>

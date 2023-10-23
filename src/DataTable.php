@@ -13,6 +13,8 @@ abstract class DataTable
 {
     private Collection $columns;
 
+    private Collection $setups;
+
     private array $options;
 
     protected ?string $orderColumn = null;
@@ -49,6 +51,7 @@ abstract class DataTable
     {
         $this->perPageOptions = $this->perPageOptions ?? $this->config('per_page_options');
         $this->columns = $this->setColumns();
+        $this->setups = $this->setSetups();
         $this->options = $this->setOptions();
     }
 
@@ -92,6 +95,16 @@ abstract class DataTable
         });
 
         return $columns->keyBy('alias');
+    }
+
+    private function setSetups(): Collection
+    {
+        $setups = collect($this->setup());
+        $setups = $setups->keyBy(function (mixed $item, int $key) {
+            return get_class($item);
+        });
+
+        return $setups;
     }
 
     private function getColumn(?string $column, string $key = null): mixed
@@ -346,15 +359,32 @@ abstract class DataTable
         return !is_null($classes) ? 'class="' . $classes . '"' : '';
     }
 
-    public function rowAttributes(mixed $model, mixed $index): array
+    public function tableAttributes(string $appendClasses = null): array
     {
-        $attributes = [];
+        $tableSetup = data_get($this->setups, Table::class);
 
-        if (is_callable([$this, 'rows'])) {
-            $attributes = call_user_func([$this, 'rows'], $model, $index);
+        if (is_array($tableSetup?->attributes)) {
+            if (data_get($tableSetup->attributes, 'class') && $appendClasses) {
+                return array_merge($tableSetup->attributes, [
+                    'class' => $tableSetup->attributes['class'] . ' ' . $appendClasses
+                ]);
+            }
+
+            return $tableSetup->attributes;
         }
 
-        return $attributes;
+        return $appendClasses ? ['class' => $appendClasses] : [];
+    }
+
+    public function rowAttributes(mixed $model, mixed $index): array
+    {
+        $rowSetup = data_get($this->setups, Row::class);
+
+        if (is_callable($rowSetup?->attributes)) {
+            return call_user_func($rowSetup->attributes, $model, $index);
+        }
+
+        return is_array($rowSetup?->attributes) ? $rowSetup->attributes : [];
     }
 
     private function paginator(): Paginator
@@ -458,6 +488,11 @@ abstract class DataTable
         $emptyState = $this->emptyState();
 
         return $emptyState instanceof View ? $emptyState->render() : $emptyState;
+    }
+
+    protected function setup(): array
+    {
+        return [];
     }
 
     protected function columns(): array
