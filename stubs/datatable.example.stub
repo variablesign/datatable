@@ -8,6 +8,8 @@ use VariableSign\DataTable\DataTable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\View\View;
 use VariableSign\DataTable\Facades\Column;
+use VariableSign\DataTable\Facades\Row;
+use VariableSign\DataTable\Facades\Table;
 
 class {{ datatableClass }} extends DataTable
 {
@@ -80,6 +82,22 @@ class {{ datatableClass }} extends DataTable
         return [
             'data-index' => $index,
             'class' => $index % 2 ? 'bg-purple-100' : null
+        ];
+    }
+
+    protected function setup(): array
+    {
+        return [
+            Table::attributes([
+                'class' => 'table table-hover'
+            ]),
+
+            Row::attributes(function ({{ model }} $model, int $index) {
+                return [
+                    'class' => 'bg-gray',
+                    'data-index' => $index
+                ];
+            })
         ];
     }
 
