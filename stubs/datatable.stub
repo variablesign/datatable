@@ -5,6 +5,9 @@ namespace {{ datatableNamespace }};
 use {{ namespacedModel }};
 use VariableSign\DataTable\DataTable;
 use Illuminate\Database\Eloquent\Builder;
+use VariableSign\DataTable\Facades\Column;
+use VariableSign\DataTable\Facades\Row;
+use VariableSign\DataTable\Facades\Table;
 
 class {{ datatableClass }} extends DataTable
 {
@@ -15,9 +18,19 @@ class {{ datatableClass }} extends DataTable
         return [];
     }
 
-    protected function rows({{ model }} $model, int $index): array
+    protected function setup(): array
     {
-        return [];
+        return [
+            Table::attributes([
+                //
+            ]),
+
+            Row::attributes(function ({{ model }} $model, int $index) {
+                return [
+                    //
+                ];
+            })
+        ];
     }
 
     protected function dataSource(): Builder

@@ -29,7 +29,10 @@
     "autoload": {
         "psr-4": {
             "VariableSign\\DataTable\\": "src"
-        }
+        },
+        "files": [
+            "src/Helper.php"
+        ]
     },
     "autoload-dev": {
         "psr-4": {

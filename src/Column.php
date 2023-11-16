@@ -2,8 +2,12 @@
 
 namespace VariableSign\DataTable;
 
+use VariableSign\DataTable\Traits\HasAttributes;
+
 class Column
 {
+    use HasAttributes;
+    
     protected ?string $name = null;
 
     protected ?string $alias = null;
@@ -24,9 +28,7 @@ class Column
 
     protected bool|array|object $sortable = false;
 
-    protected null|array|object $attributes = null;
-
-    protected null|array|object $colgroup = null;
+    // protected null|array|object $colgroup = null;
 
     protected null|array|object $checkboxAttributes = null;
 
@@ -82,19 +84,12 @@ class Column
         return $this;
     }
 
-    public function attributes(null|array|callable $attributes = null): self
-    {
-        $this->attributes = $attributes;
+    // public function colgroup(null|array|callable $attributes = null): self
+    // {
+    //     $this->colgroup = $attributes;
 
-        return $this;
-    }
-
-    public function colgroup(null|array|callable $attributes = null): self
-    {
-        $this->colgroup = $attributes;
-
-        return $this;
-    }
+    //     return $this;
+    // }
 
     public function responsive(string $breakpoint): self
     {
