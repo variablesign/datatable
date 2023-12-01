@@ -19,6 +19,8 @@ abstract class DataTable
 
     protected ?string $orderColumn = null;
 
+    private ?string $defaultOrderColumn = null;
+
     protected string $orderDirection = 'asc';
 
     protected ?int $perPage = null;
@@ -50,6 +52,7 @@ abstract class DataTable
     public function __construct()
     {
         $this->perPageOptions = $this->perPageOptions ?? $this->config('per_page_options');
+        $this->defaultOrderColumn = $this->orderColumn;
         $this->columns = $this->setColumns();
         $this->setups = $this->setSetups();
         $this->options = $this->setOptions();
@@ -252,6 +255,12 @@ abstract class DataTable
         $sortable = $this->getSortableColumns()
             ->keyBy('name')
             ->get($this->orderColumn);
+
+        if (is_null($sortable) && $this->defaultOrderColumn) {
+            $sortable = [
+                'sortable' => [$this->defaultOrderColumn]
+            ];
+        }
 
         return $this->dataSource()
             ->when($this->request('search'), function ($query) {
