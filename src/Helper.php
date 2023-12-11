@@ -3,8 +3,17 @@
 use VariableSign\DataTable\DataTable;
 
 if (!function_exists('datatable')) {
-    function datatable(string $table): DataTable
+    function datatable(string $table, array $data = []): DataTable
     {
+        $formattedName = 'datatable.' . str($table)->replace('.', '_')->toString();
+
+        session([
+            $formattedName => [
+                'data' => $data,
+                'state' => []
+            ]
+        ]);
+
         $parts = explode('.', $table);
 
         if (count($parts) > 1) {
@@ -18,6 +27,6 @@ if (!function_exists('datatable')) {
             $class = '\\App\\' . config('datatable.directory') . '\\' . str($table)->studly();
         }
 
-        return new $class();
+        return new $class($table);
     }
 }

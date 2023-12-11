@@ -2,11 +2,11 @@
 
 namespace VariableSign\DataTable;
 
+use Illuminate\View\View;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Contracts\Pagination\Paginator;
-use Illuminate\View\View;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 
 abstract class DataTable
@@ -16,6 +16,10 @@ abstract class DataTable
     private Collection $setups;
 
     private array $options;
+
+    private string $table;
+
+    public array $data = [];
 
     protected ?string $orderColumn = null;
 
@@ -29,13 +33,21 @@ abstract class DataTable
 
     protected ?int $onEachSide = null;
 
-    protected ?bool $pushState = null;
-
     protected bool $skipTotal = false;
 
     protected bool $deepSearch = false;
 
     protected string $tableName = 'datatable';
+
+    protected ?string $tableId = null;
+
+    protected ?string $queryStringPrefix = null;
+
+    protected ?bool $syncQueryString = null;
+
+    protected ?bool $autoUpdate = null;
+
+    protected ?int $autoUpdateInterval = null;
 
     protected ?string $template = null;
 
@@ -49,18 +61,37 @@ abstract class DataTable
 
     protected ?string $searchPlaceholder = null;
 
-    public function __construct()
+    public function __construct(string $table)
     {
+        $this->table = $table;
+        $this->data = $this->storage('data', []);
         $this->perPageOptions = $this->perPageOptions ?? $this->config('per_page_options');
+        $this->autoUpdate = $this->autoUpdate ?? $this->config('auto_update');
+        $this->autoUpdateInterval = ($this->autoUpdateInterval ?? $this->config('auto_update_interval')) * 1000;
         $this->defaultOrderColumn = $this->orderColumn;
         $this->columns = $this->setColumns();
         $this->setups = $this->setSetups();
         $this->options = $this->setOptions();
     }
 
+    private function storage(?string $key = null, mixed $default = null): mixed
+    {
+        return session('datatable.' . str($this->table)->replace('.', '_')->toString() . '.' . $key, $default);
+    }
+
     private function config(?string $key = null, mixed $default = null): mixed
     {
+        $requestedKey = $key;
         $key = $key ? 'datatable.' . $key : 'datatable';
+
+        if ($this->queryStringPrefix && $requestedKey === 'request_map') {
+            $requestMap = config($key, $default);
+            $requestMap = array_map(function ($item) {
+                return $this->queryStringPrefix . '_' . $item;
+            }, $requestMap);
+
+            return $requestMap;
+        }
 
         return config($key, $default);
     }
@@ -125,7 +156,7 @@ abstract class DataTable
         return [
             'template' => $this->template ?? $this->config('template'),
             'table_name' => $this->tableName,
-            'table_id' => str($this->tableName)->slug()->toString() . '-table',
+            'table_id' => $this->tableId ?? str($this->tableName)->slug()->toString() . '-table',
             'data_source' => $this->getDataSource(),
             'skip_total' => $this->skipTotal,
             'deep_search' => $this->deepSearch,
@@ -133,13 +164,17 @@ abstract class DataTable
             'order_direction' => $this->orderDirection,
             'per_page' => $this->setPerPage(),
             'per_page_options' => $this->perPageOptions,
-            'push_state' => $this->pushState ?? $this->config('push_state'),
+            'sync_query_string' => $this->syncQueryString ?? $this->config('sync_query_string'),
+            'query_string_prefix' => $this->queryStringPrefix,
+            'auto_update' => $this->autoUpdate,
+            'auto_update_interval' => $this->autoUpdateInterval,
             'on_each_side' => $this->onEachSide ?? $this->config('on_each_side'),
             'search_placeholder' => $this->getSearchPlaceholder($this->searchPlaceholder),
             'request' => [
                 'query' => request()->all(),
                 'map' =>  $this->config('request_map')
             ],
+            'data' => $this->data,
             'show_header' => $this->showHeader,
             'show_info' => $this->showInfo,
             'show_page_options' => $this->showPageOptions,
@@ -419,7 +454,7 @@ abstract class DataTable
         return $paginator->isEmpty() && $this->request('search');
     }
 
-    private function data(): array
+    private function outputData(): array
     {
         $paginator = $this->paginator();
 
@@ -434,18 +469,19 @@ abstract class DataTable
 
     private function getRouteParameter(): string 
     {
-        $class = get_called_class();
-        $class = str($class)->after($this->config('directory') . '\\');
-        $parts = explode('\\', $class);
-        $total = count($parts);
-        $name = $total > 1 ? array_pop($parts) : $class;
-        $name = str($name)->kebab();
-        $parts = array_map(function ($item) {
-            return strtolower($item);
-        }, $parts);
-        $path = implode('.', $parts);
+        // $class = get_called_class();
+        // $class = str($class)->after($this->config('directory') . '\\');
+        // $parts = explode('\\', $class);
+        // $total = count($parts);
+        // $name = $total > 1 ? array_pop($parts) : $class;
+        // $name = str($name)->kebab();
+        // $parts = array_map(function ($item) {
+        //     return strtolower($item);
+        // }, $parts);
+        // $path = implode('.', $parts);
 
-        return $total > 1 ? $path . '.' . $name : $name;
+        // return $total > 1 ? $path . '.' . $name : $name;
+        return $this->table;
     }
 
     public function render(): ?string
@@ -456,7 +492,14 @@ abstract class DataTable
             return __($item, [
                 'id' => $this->getOption('table_id'),
                 'url' => route($this->config('route.name'), $this->getRouteParameter()),
-                'push_state' => $this->getOption('push_state') ? 'true' : 'false'
+                'sync_query_string' => $this->getOption('sync_query_string') ? 'true' : 'false',
+                'auto_update' => $this->getOption('auto_update') ? 'true' : 'false',
+                'auto_update_interval' => $this->getOption('auto_update_interval'),
+                'page' => $this->getOption('request.map.page'),
+                'search' => $this->getOption('request.map.search'),
+                'order_column' => $this->getOption('request.map.order_column'),
+                'order_direction' => $this->getOption('request.map.order_direction'),
+                'per_page' => $this->getOption('request.map.per_page'),
             ]);
         });
 
@@ -469,8 +512,8 @@ abstract class DataTable
 
     public function api(): array
     {
-        $data = $this->data();
-
+        $data = $this->outputData();
+ 
         return [
             'has_records' => $this->hasRecords($data['paginator']),
             'not_found' => $this->recordsNotFound($data['paginator']),

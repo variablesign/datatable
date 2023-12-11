@@ -106,14 +106,27 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Push State
+    | Query String Sync
     |--------------------------------------------------------------------------
     |
     | Sync the query string from the datatable URL with the URL of the page.
     |
     */
 
-    'push_state' => true,
+    'sync_query_string' => true,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Auto Update
+    |--------------------------------------------------------------------------
+    |
+    | Auto refresh table after a set interval in seconds.
+    |
+    */
+
+    'auto_update' => false,
+
+    'auto_update_interval' => 60,
 
     /*
     |--------------------------------------------------------------------------
@@ -150,7 +163,9 @@ return [
     'attributes' => [
         'data-uk-datatable' => 'true',
         'data-datatable-id' => ':id',
-        'data-datatable-push-state' => ':push_state',
+        'data-datatable-push-state' => ':sync_query_string',
+        'data-datatable-auto-update' => ':auto_update',
+        'data-datatable-auto-update-interval' => ':auto_update_interval',
         'data-datatable-url' => ':url',
         'data-datatable-table' => 'data-datatable-section=table',
         'data-datatable-search' => 'data-datatable-section=search',
@@ -165,11 +180,11 @@ return [
         'data-datatable-direction' => 'data-datatable-order-direction',
         'data-datatable-search-input' => 'data-datatable-search-input',
         'data-datatable-checkbox' => 'data-datatable-checkbox',
-        'data-datatable-request--page' => 'page',
-        'data-datatable-request--search' => 'q',
-        'data-datatable-request--order-column' => 'order_column',
-        'data-datatable-request--order-direction' => 'order_direction',
-        'data-datatable-request--per-page' => 'per_page'
+        'data-datatable-request--page' => ':page',
+        'data-datatable-request--search' => ':search',
+        'data-datatable-request--order-column' => ':order_column',
+        'data-datatable-request--order-direction' => ':order_direction',
+        'data-datatable-request--per-page' => ':per_page'
     ],
 
 ];
