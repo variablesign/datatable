@@ -35,7 +35,9 @@ abstract class DataTable
 
     protected bool $skipTotal = false;
 
-    protected bool $deepSearch = false;
+    protected ?bool $deepSearch = null;
+
+    protected ?bool $saveState = null;
 
     protected string $tableName = 'datatable';
 
@@ -72,6 +74,10 @@ abstract class DataTable
         $this->columns = $this->setColumns();
         $this->setups = $this->setSetups();
         $this->options = $this->setOptions();
+
+        if ($this->getOption('save_state')) {
+            request()->merge($this->storage('request', []))->all();
+        }
     }
 
     private function storage(?string $key = null, mixed $default = null): mixed
@@ -159,11 +165,12 @@ abstract class DataTable
             'table_id' => $this->tableId ?? str($this->tableName)->slug()->toString() . '-table',
             'data_source' => $this->getDataSource(),
             'skip_total' => $this->skipTotal,
-            'deep_search' => $this->deepSearch,
+            'deep_search' => $this->deepSearch ?? $this->config('deep_search'),
             'order_column' => $this->orderColumn,
             'order_direction' => $this->orderDirection,
             'per_page' => $this->setPerPage(),
             'per_page_options' => $this->perPageOptions,
+            'save_state' => $this->saveState ?? $this->config('save_state'),
             'sync_query_string' => $this->syncQueryString ?? $this->config('sync_query_string'),
             'query_string_prefix' => $this->queryStringPrefix,
             'auto_update' => $this->autoUpdate,
@@ -467,21 +474,13 @@ abstract class DataTable
         ];
     }
 
-    private function getRouteParameter(): string 
+    private function getRouteParameter(): array 
     {
-        // $class = get_called_class();
-        // $class = str($class)->after($this->config('directory') . '\\');
-        // $parts = explode('\\', $class);
-        // $total = count($parts);
-        // $name = $total > 1 ? array_pop($parts) : $class;
-        // $name = str($name)->kebab();
-        // $parts = array_map(function ($item) {
-        //     return strtolower($item);
-        // }, $parts);
-        // $path = implode('.', $parts);
+        $params = [$this->table];
 
-        // return $total > 1 ? $path . '.' . $name : $name;
-        return $this->table;
+        return $this->getOption('save_state')
+            ? array_merge($params, $this->storage('request', [])) 
+            : $params;
     }
 
     public function render(): ?string

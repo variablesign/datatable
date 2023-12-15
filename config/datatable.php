@@ -13,6 +13,30 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Save State
+    |--------------------------------------------------------------------------
+    |
+    | Saves the state of table by storing query parameters of each request.
+    |
+    */
+
+    'save_state' => false,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Deep Search
+    |--------------------------------------------------------------------------
+    |
+    | Deep search breaks down search keywords and searches for each one separately.
+    | Note: This affects the performance of search queries when your table
+    | contains a huge amount of data.
+    |
+    */
+
+    'deep_search' => false,
+
+    /*
+    |--------------------------------------------------------------------------
     | Per Page
     |--------------------------------------------------------------------------
     |
