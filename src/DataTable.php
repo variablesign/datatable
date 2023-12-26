@@ -231,7 +231,7 @@ abstract class DataTable
 
     private function getSearchKeywords(): array
     {
-        $keywords = $this->deepSearch 
+        $keywords = $this->getOption('deep_search') 
             ? explode(' ', $this->request('search') ?? '') 
             : [$this->request('search')];
         $keywords = array_filter($keywords);
