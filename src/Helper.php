@@ -6,11 +6,9 @@ if (!function_exists('datatable')) {
     function datatable(string $table, array $data = []): DataTable
     {
         $formattedName = 'datatable.' . str($table)->replace('.', '_')->toString();
-        $mergeRequest = array_merge(session($formattedName . '.request', []), request()->all());
         session([
             $formattedName => [
-                'data' => $data,
-                'request' => $mergeRequest
+                'data' => $data
             ]
         ]);
 

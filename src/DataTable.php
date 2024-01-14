@@ -39,13 +39,15 @@ abstract class DataTable
 
     protected ?bool $saveState = null;
 
+    protected ?array $saveStateFilter = null;
+
+    protected ?string $storage = null;
+
     protected string $tableName = 'datatable';
 
     protected ?string $tableId = null;
 
     protected ?string $queryStringPrefix = null;
-
-    protected ?bool $syncQueryString = null;
 
     protected ?bool $autoUpdate = null;
 
@@ -74,10 +76,6 @@ abstract class DataTable
         $this->columns = $this->setColumns();
         $this->setups = $this->setSetups();
         $this->options = $this->setOptions();
-
-        if ($this->getOption('save_state')) {
-            request()->merge($this->storage('request', []))->all();
-        }
     }
 
     private function storage(?string $key = null, mixed $default = null): mixed
@@ -162,7 +160,7 @@ abstract class DataTable
         return [
             'template' => $this->template ?? $this->config('template'),
             'table_name' => $this->tableName,
-            'table_id' => $this->tableId ?? str($this->tableName)->slug()->toString() . '-table',
+            'table_id' => str($this->table)->replace('.', '-')->toString(),
             'data_source' => $this->getDataSource(),
             'skip_total' => $this->skipTotal,
             'deep_search' => $this->deepSearch ?? $this->config('deep_search'),
@@ -170,8 +168,9 @@ abstract class DataTable
             'order_direction' => $this->orderDirection,
             'per_page' => $this->setPerPage(),
             'per_page_options' => $this->perPageOptions,
+            'storage' => $this->storage ?? $this->config('storage'),
             'save_state' => $this->saveState ?? $this->config('save_state'),
-            'sync_query_string' => $this->syncQueryString ?? $this->config('sync_query_string'),
+            'save_state_filter' => $this->saveStateFilter ?? $this->config('save_state_filter'),
             'query_string_prefix' => $this->queryStringPrefix,
             'auto_update' => $this->autoUpdate,
             'auto_update_interval' => $this->autoUpdateInterval,
@@ -179,6 +178,7 @@ abstract class DataTable
             'search_placeholder' => $this->getSearchPlaceholder($this->searchPlaceholder),
             'request' => [
                 'query' => request()->all(),
+                'save' => $this->getSaveableRequest(),
                 'map' =>  $this->config('request_map')
             ],
             'data' => $this->data,
@@ -254,6 +254,15 @@ abstract class DataTable
         }
 
         return null;
+    }
+
+    private function getSaveableRequest(): array
+    {
+        $filter = $this->saveStateFilter ?? $this->config('save_state_filter');
+
+        return array_filter(request()->all(), function ($value, $key) use ($filter) {
+            return !in_array(array_search($key, $this->config('request_map')), $filter);
+        }, ARRAY_FILTER_USE_BOTH);
     }
 
     private function getSearchableColumns(): Collection
@@ -474,13 +483,9 @@ abstract class DataTable
         ];
     }
 
-    private function getRouteParameter(): array 
+    public function id(bool $withHash = true): string
     {
-        $params = [$this->table];
-
-        return $this->getOption('save_state')
-            ? array_merge($params, $this->storage('request', [])) 
-            : $params;
+        return $withHash ? '#' . $this->getOption('table_id') : $this->getOption('table_id');
     }
 
     public function render(): ?string
@@ -490,8 +495,9 @@ abstract class DataTable
         $attributes = $attributes->map(function (string $item, string $key) {
             return __($item, [
                 'id' => $this->getOption('table_id'),
-                'url' => route($this->config('route.name'), $this->getRouteParameter()),
-                'sync_query_string' => $this->getOption('sync_query_string') ? 'true' : 'false',
+                'url' => route($this->config('route.name'), $this->table),
+                'storage' => $this->getOption('storage'),
+                'save_state' => $this->getOption('save_state') ? 'true' : 'false',
                 'auto_update' => $this->getOption('auto_update') ? 'true' : 'false',
                 'auto_update_interval' => $this->getOption('auto_update_interval'),
                 'page' => $this->getOption('request.map.page'),

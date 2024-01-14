@@ -24,6 +24,32 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Save State Filter
+    |--------------------------------------------------------------------------
+    |
+    | Set the names of the request parameters you want to exclude from being save.
+    | Example: You can add "page" to the array if don't want to save the last viewed page.
+    | You can use any of the keys from the "request_map" option below.
+    |
+    */
+
+    'save_state_filter' => [],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Storage
+    |--------------------------------------------------------------------------
+    |
+    | Table states are stored in the browser's "local" storage by default.
+    | You can set the value to "session" if you just want the stored 
+    | data to be available per session.
+    |
+    */
+
+    'storage' => 'local',
+
+    /*
+    |--------------------------------------------------------------------------
     | Deep Search
     |--------------------------------------------------------------------------
     |
@@ -130,17 +156,6 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Query String Sync
-    |--------------------------------------------------------------------------
-    |
-    | Sync the query string from the datatable URL with the URL of the page.
-    |
-    */
-
-    'sync_query_string' => true,
-
-    /*
-    |--------------------------------------------------------------------------
     | Auto Update
     |--------------------------------------------------------------------------
     |
@@ -187,10 +202,11 @@ return [
     'attributes' => [
         'data-uk-datatable' => 'true',
         'data-datatable-id' => ':id',
-        'data-datatable-push-state' => ':sync_query_string',
         'data-datatable-auto-update' => ':auto_update',
         'data-datatable-auto-update-interval' => ':auto_update_interval',
         'data-datatable-url' => ':url',
+        'data-datatable-storage' => ':storage',
+        'data-datatable-save-state' => ':save_state',
         'data-datatable-table' => 'data-datatable-section=table',
         'data-datatable-search' => 'data-datatable-section=search',
         'data-datatable-info' => 'data-datatable-section=info',
