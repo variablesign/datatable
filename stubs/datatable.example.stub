@@ -73,19 +73,11 @@ class {{ datatableClass }} extends DataTable
         ];
     }
 
-    protected function rows({{ model }} $model, int $index): array
-    {
-        return [
-            'data-index' => $index,
-            'class' => $index % 2 ? 'bg-purple-100' : null
-        ];
-    }
-
     protected function setup(): array
     {
         return [
             Table::attributes([
-                'class' => 'table table-hover'
+                'class' => 'table-hover'
             ]),
 
             Row::attributes(function ({{ model }} $model, int $index) {
