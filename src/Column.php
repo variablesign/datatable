@@ -28,6 +28,8 @@ class Column
 
     protected bool|array|object $sortable = false;
 
+    protected bool|object $filterable = false;
+
     // protected null|array|object $colgroup = null;
 
     protected null|array|object $checkboxAttributes = null;
@@ -80,6 +82,13 @@ class Column
     {
         $sortable = $sortable === true ? [$this->name] : $sortable;
         $this->sortable = $sortable;
+
+        return $this;
+    }
+
+    public function filterable(callable $filterable): self
+    {
+        $this->filterable = $filterable;
 
         return $this;
     }

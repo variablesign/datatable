@@ -4,6 +4,7 @@ namespace VariableSign\DataTable;
 
 use Illuminate\View\View;
 use Illuminate\Support\Collection;
+use VariableSign\DataTable\Filter;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Contracts\Pagination\Paginator;
@@ -100,24 +101,27 @@ abstract class DataTable
         return config($key, $default);
     }
 
-    public function request(string $key): ?string
+    public function request(string $key): null|string|array
     {
         $request = data_get($this->config('request_map'), $key);
-        $request = e(strip_tags(request($request, '')));
+        // $request = e(strip_tags(request($request, '')));
+        return is_null($request) ? null : request()->get($request);
 
-        return empty($request) ? null : $request;
+        // return empty($request) ? null : $request;
     }
 
     private function setColumns(): Collection
     {
         $columns = collect($this->columns());
         $columns = $columns->transform(function (object $item, int $key) {
+            
             return [
                 'name' => $item->name,
                 'alias' => $item->alias,
                 'title' => $item->title,
                 'searchable' => $item->searchable,
                 'sortable' => $item->sortable,
+                'filterable' => $this->parseFilterableColumn($item),
                 'ordered' => $item->sortable && $this->setOrderColumn() === $item->alias ? true : false,
                 'direction' => $this->setOrderColumn() === $item->alias ? $this->setOrderDirection() : 'asc',
                 'edit' => $item->edit,
@@ -243,7 +247,7 @@ abstract class DataTable
         return $keywords;
     }
 
-    private function getDataSource(): ?string
+    private function getDataSource(): string
     {
         if ($this->dataSource() instanceof Builder) {
             return 'eloquent';
@@ -252,8 +256,6 @@ abstract class DataTable
         if ($this->dataSource() instanceof QueryBuilder) {
             return 'queryBuilder';
         }
-
-        return null;
     }
 
     private function getSaveableRequest(): array
@@ -276,6 +278,22 @@ abstract class DataTable
     {
         return $this->columns->filter(function (mixed $value, string $key) {
                 return $value['sortable'];
+            });
+    }
+
+    private function parseFilterableColumn(object $column): bool|object
+    {
+        if (is_callable($column->filterable)) {
+            return call_user_func($column->filterable, new Filter, $column->name);
+        }
+
+        return false;
+    }
+
+    private function getFilterableColumns(): Collection
+    {
+        return $this->columns->filter(function (mixed $value, string $key) {
+                return $value['filterable'];
             });
     }
 
@@ -313,6 +331,8 @@ abstract class DataTable
             ];
         }
 
+        $requestFilters = $this->request('filters');
+
         return $this->dataSource()
             ->when($this->request('search'), function ($query) {
                 $query->where(function ($query) {
@@ -326,6 +346,15 @@ abstract class DataTable
                         }
                     }
                 });
+            })
+            ->when($requestFilters, function ($query) use ($requestFilters) {
+                foreach ($this->getFilterableColumns()->all() as $alias => $column) {
+                    $value = data_get($requestFilters, $alias);
+
+                    if (!is_bool($column['filterable']) && $value) {
+                        $column['filterable']->getFilter($alias, $value, $query);
+                    }
+                }  
             })
             ->when($sortable, function ($query) use ($sortable) {
                 if (is_callable($sortable['sortable'])) {
@@ -518,7 +547,7 @@ abstract class DataTable
     public function api(): array
     {
         $data = $this->outputData();
- 
+
         return [
             'has_records' => $this->hasRecords($data['paginator']),
             'not_found' => $this->recordsNotFound($data['paginator']),
@@ -557,7 +586,7 @@ abstract class DataTable
         return [];
     }
 
-    protected function dataSource(): mixed
+    protected function dataSource(): Builder|QueryBuilder
     {
         return Model::query();
     }

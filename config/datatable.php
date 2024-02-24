@@ -187,7 +187,8 @@ return [
         'search' => 'q',
         'order_column' => 'order_column',
         'order_direction' => 'order_direction',
-        'per_page' => 'per_page'
+        'per_page' => 'per_page',
+        'filters' => 'filters'
     ],
 
     /*
