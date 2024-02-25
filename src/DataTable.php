@@ -534,6 +534,7 @@ abstract class DataTable
                 'order_column' => $this->getOption('request.map.order_column'),
                 'order_direction' => $this->getOption('request.map.order_direction'),
                 'per_page' => $this->getOption('request.map.per_page'),
+                'filters' => $this->getOption('request.map.filters')
             ]);
         });
 

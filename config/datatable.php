@@ -221,11 +221,13 @@ return [
         'data-datatable-direction' => 'data-datatable-order-direction',
         'data-datatable-search-input' => 'data-datatable-search-input',
         'data-datatable-checkbox' => 'data-datatable-checkbox',
+        'data-datatable-filter' => 'data-datatable-filter',
         'data-datatable-request--page' => ':page',
         'data-datatable-request--search' => ':search',
         'data-datatable-request--order-column' => ':order_column',
         'data-datatable-request--order-direction' => ':order_direction',
-        'data-datatable-request--per-page' => ':per_page'
+        'data-datatable-request--per-page' => ':per_page',
+        'data-datatable-request--filters' => ':filters'
     ],
 
 ];
