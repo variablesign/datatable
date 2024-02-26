@@ -2,6 +2,7 @@
 
 namespace VariableSign\DataTable;
 
+use VariableSign\DataTable\Filters\TextFilter;
 use VariableSign\DataTable\Filters\BooleanFilter;
 
 class Filter
@@ -10,4 +11,9 @@ class Filter
     {
         return new BooleanFilter;
     }
+
+    // public function text(): TextFilter
+    // {
+    //     return new TextFilter;
+    // }
 }

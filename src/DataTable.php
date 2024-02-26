@@ -217,18 +217,18 @@ abstract class DataTable
         return $perPage ?? $this->perPage ?? $this->config('per_page');
     }
 
-    private function validateDirection(string $direction): string
+    private function validateDirection(?string $direction): string
     {
         return match ($direction) {
             'asc' => 'asc',
             'desc' => 'desc',
-            default => 'asc'
+            default => ''
         };
     }
 
     private function setOrderDirection(): string
     {
-        $direction = $this->request('order_direction') ?? $this->orderDirection;
+        $direction = $this->request('order_direction');
 
         return $this->validateDirection($direction);
     }
@@ -261,10 +261,10 @@ abstract class DataTable
     private function getSaveableRequest(): array
     {
         $filter = $this->saveStateFilter ?? $this->config('save_state_filter');
-
-        return array_filter(request()->all(), function ($value, $key) use ($filter) {
+        
+        return array_filter(array_filter(request()->all(), function ($value, $key) use ($filter) {
             return !in_array(array_search($key, $this->config('request_map')), $filter);
-        }, ARRAY_FILTER_USE_BOTH);
+        }, ARRAY_FILTER_USE_BOTH));
     }
 
     private function getSearchableColumns(): Collection
@@ -356,7 +356,7 @@ abstract class DataTable
                     }
                 }  
             })
-            ->when($sortable, function ($query) use ($sortable) {
+            ->when($sortable && !empty($this->orderDirection), function ($query) use ($sortable) {
                 if (is_callable($sortable['sortable'])) {
                     call_user_func($sortable['sortable'], $query, $this->orderDirection);
                 } else if (is_array($sortable['sortable'])) {
@@ -474,6 +474,37 @@ abstract class DataTable
         }
 
         return is_array($rowSetup?->attributes) ? $rowSetup->attributes : [];
+    }
+
+    public function getFilter(?string $column = null): array
+    {
+        $filterable = $this->getFilterableColumns();
+        $filterable->transform(function (array $item, string $key) {
+            $filter = $item['filterable'];
+            
+            return [
+                'title' => $item['title'],
+                'value' => data_get($this->request('filters'), $key),
+                'element' => is_object($filter) ? $filter->getElement() : null,
+                'data' => is_object($filter) ? $filter->getDataSource() : null
+            ];
+        });
+
+        return $filterable->all();
+    }
+
+    public function getNextSortDirection(?string $direction, bool $ordered): string
+    {
+        if (!$ordered) {
+            return 'asc';
+        }
+
+        return match ($direction) {
+            '' => 'asc',
+            'asc' => 'desc',
+            'desc' => '',
+            default => ''
+        };
     }
 
     private function paginator(): Paginator
