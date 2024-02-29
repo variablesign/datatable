@@ -213,6 +213,7 @@ return [
         'data-datatable-info' => 'data-datatable-section=info',
         'data-datatable-length' => 'data-datatable-section=length',
         'data-datatable-pagination' => 'data-datatable-section=pagination',
+        'data-datatable-filters' => 'data-datatable-section=filters',
         'data-datatable-region' => 'data-datatable-section=region',
         'data-datatable-loader' => 'data-datatable-section=loader',
         'data-datatable-page-length' => 'data-datatable-per-page',

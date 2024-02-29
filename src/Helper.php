@@ -3,7 +3,7 @@
 use VariableSign\DataTable\DataTable;
 
 if (!function_exists('datatable')) {
-    function datatable(string $table, array $data = []): DataTable
+    function datatable(string $table, array $data = [], bool $withColumns = false): DataTable
     {
         $formattedName = 'datatable.' . str($table)->replace('.', '_')->toString();
         session([
@@ -25,6 +25,6 @@ if (!function_exists('datatable')) {
             $class = '\\App\\' . config('datatable.directory') . '\\' . str($table)->studly();
         }
 
-        return new $class($table);
+        return new $class($table, $withColumns);
     }
 }

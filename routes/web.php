@@ -7,7 +7,7 @@ Route::prefix(config('datatable.route.prefix'))
     ->group(function () {
         Route::get(config('datatable.route.uri'), function (string $table) {
             $formattedName = 'datatable.' . str($table)->replace('.', '_')->toString();
-            $datatable = datatable($table, session($formattedName . '.data', []));
+            $datatable = datatable($table, session($formattedName . '.data', []), true);
     
             return response()->json($datatable->api());
         })

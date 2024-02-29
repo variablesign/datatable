@@ -2,17 +2,13 @@
 
 namespace VariableSign\DataTable\Filters;
 
+use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\Builder as QueryBuilder;
-use Illuminate\Support\Collection;
 
-class SelectFilter
+class EnumFilter
 {
     private array $dataSource;
-
-    private string $value = 'id';
-
-    private string $label = 'name';
 
     private string $defaultLabel = 'All';
 
@@ -21,7 +17,7 @@ class SelectFilter
     public function dataSource(array|Collection $dataSource): self
     {
         $this->dataSource = $dataSource instanceof Collection ? $dataSource->toArray() : $dataSource;
-
+        
         return $this;
     }
 
@@ -29,20 +25,6 @@ class SelectFilter
     {
         $this->options = $options;
 
-        return $this;
-    }
-
-    public function value(string $value): self
-    {
-        $this->value = $value;
-        
-        return $this;
-    }
-
-    public function label(string $label): self
-    {
-        $this->label = $label;
-        
         return $this;
     }
 
@@ -57,7 +39,7 @@ class SelectFilter
     {
         return match ($value) {
             '' => $query,
-            default => $query->where($column, $value)
+            default => $query->where($column, data_get($this->dataSource, $value))
         };
     }
 
@@ -67,8 +49,8 @@ class SelectFilter
             '' => $this->defaultLabel
         ];
 
-        foreach ($this->dataSource as $options) {
-            $data[$options[$this->value]] = $options[$this->label];
+        foreach ($this->dataSource as $enum) {
+            $data[$enum->value] = method_exists($enum, 'label') ? $enum->label() : $enum->value;
         }
 
         return $data;

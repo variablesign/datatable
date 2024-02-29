@@ -17,6 +17,8 @@ class BooleanFilter
 
     private string $defaultLabel = 'All';
 
+    public array $options = [];
+
     private function dataSource(): array
     {
         return [
@@ -24,6 +26,13 @@ class BooleanFilter
             'true' => $this->trueLabel,
             'false' => $this->falseLabel
         ];
+    }
+
+    public function withOptions(array $options): self
+    {
+        $this->options = $options;
+
+        return $this;
     }
 
     public function default(string $label): self
@@ -49,9 +58,9 @@ class BooleanFilter
         return $this;
     }
 
-    public function getFilter(string $column, ?string $key, Builder|QueryBuilder $query): Builder|QueryBuilder|null
+    public function getFilter(string $column, mixed $value, Builder|QueryBuilder $query): Builder|QueryBuilder|null
     {
-        return match ($key) {
+        return match ($value) {
             'true' => $this->true ? call_user_func($this->true, $query) : $query->where($column, 1),
             'false' => $this->false ? call_user_func($this->false, $query) : $query->where($column, 0),
             default => $query

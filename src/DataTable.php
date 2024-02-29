@@ -66,7 +66,7 @@ abstract class DataTable
 
     protected ?string $searchPlaceholder = null;
 
-    public function __construct(string $table)
+    public function __construct(string $table, bool $withColumns)
     {
         $this->table = $table;
         $this->data = $this->storage('data', []);
@@ -74,7 +74,7 @@ abstract class DataTable
         $this->autoUpdate = $this->autoUpdate ?? $this->config('auto_update');
         $this->autoUpdateInterval = ($this->autoUpdateInterval ?? $this->config('auto_update_interval')) * 1000;
         $this->defaultOrderColumn = $this->orderColumn;
-        $this->columns = $this->setColumns();
+        $this->columns = $this->setColumns($withColumns);
         $this->setups = $this->setSetups();
         $this->options = $this->setOptions();
     }
@@ -110,11 +110,15 @@ abstract class DataTable
         // return empty($request) ? null : $request;
     }
 
-    private function setColumns(): Collection
+    private function setColumns(bool $withColumns): Collection
     {
+        if (!$withColumns) {
+            return collect([]);
+        }
+
         $columns = collect($this->columns());
         $columns = $columns->transform(function (object $item, int $key) {
-            
+
             return [
                 'name' => $item->name,
                 'alias' => $item->alias,
@@ -171,6 +175,7 @@ abstract class DataTable
             'order_column' => $this->orderColumn,
             'order_direction' => $this->orderDirection,
             'per_page' => $this->setPerPage(),
+            'filtered' => $this->getActiveFilterCount(),
             'per_page_options' => $this->perPageOptions,
             'storage' => $this->storage ?? $this->config('storage'),
             'save_state' => $this->saveState ?? $this->config('save_state'),
@@ -204,9 +209,25 @@ abstract class DataTable
         return 'datatable::' . $this->getOption('template', 'default') . '.' . $view;
     }
 
+    private function getActiveFilterCount(): int
+    {
+        $filters = $this->request('filters') ?? [];
+        $filters = array_map(function ($value) {
+            return is_array($value) ? array_filter($value) : $value;
+        }, $filters);
+
+        return count(array_filter($filters, function ($value) {
+            return !is_null($value);
+        }));
+    }
+
     private function setOrderColumn(): ?string
     {
-        return $this->request('order_column') ?? $this->orderColumn;
+        if (request()->has($this->config('request_map.order_column'))) {
+            return $this->request('order_column');
+        }
+
+        return $this->orderColumn;
     }
 
     private function setPerPage(): int
@@ -229,6 +250,10 @@ abstract class DataTable
     private function setOrderDirection(): string
     {
         $direction = $this->request('order_direction');
+
+        if (!request()->has($this->config('request_map.order_direction'))) {
+            $direction = $this->orderDirection;
+        }
 
         return $this->validateDirection($direction);
     }
@@ -262,9 +287,36 @@ abstract class DataTable
     {
         $filter = $this->saveStateFilter ?? $this->config('save_state_filter');
         
-        return array_filter(array_filter(request()->all(), function ($value, $key) use ($filter) {
+        $filtered = array_filter(request()->all(), function ($value, $key) use ($filter) {
             return !in_array(array_search($key, $this->config('request_map')), $filter);
-        }, ARRAY_FILTER_USE_BOTH));
+        }, ARRAY_FILTER_USE_BOTH);
+
+        return collect($filtered)
+            ->filter()
+            ->mapWithKeys(function (mixed $item, mixed $key) {
+                $flattened = [];
+
+                if (is_array($item)) {
+                    foreach ($item as $subKey => $subItem) {
+                        $flattened["{$key}[{$subKey}]"] = $subItem;
+
+                        if (is_array($subItem)) {
+                            for ($i = 0; $i < count($subItem); $i++) { 
+                                $flattened["{$key}[{$subKey}][{$i}]"] = $subItem[$i];
+                            }
+                        }
+                    }
+                }
+
+                return [
+                    $key => $item,
+                    ...$flattened
+                ];
+            })
+            ->filter(function (mixed $value, mixed $key) {
+                return !is_array($value);
+            })
+            ->all();
     }
 
     private function getSearchableColumns(): Collection
@@ -348,11 +400,11 @@ abstract class DataTable
                 });
             })
             ->when($requestFilters, function ($query) use ($requestFilters) {
-                foreach ($this->getFilterableColumns()->all() as $alias => $column) {
-                    $value = data_get($requestFilters, $alias);
+                foreach ($this->getFilterableColumns()->all() as $column) {
+                    $value = data_get($requestFilters, $column['alias']);
 
-                    if (!is_bool($column['filterable']) && $value) {
-                        $column['filterable']->getFilter($alias, $value, $query);
+                    if (!is_bool($column['filterable']) && !is_null($value)) {
+                        $column['filterable']->getFilter($column['name'], $value, $query);
                     }
                 }  
             })
@@ -484,9 +536,10 @@ abstract class DataTable
             
             return [
                 'title' => $item['title'],
-                'value' => data_get($this->request('filters'), $key),
+                'value' => data_get($this->request('filters'), $key, ''),
                 'element' => is_object($filter) ? $filter->getElement() : null,
-                'data' => is_object($filter) ? $filter->getDataSource() : null
+                'data' => is_object($filter) ? $filter->getDataSource() : null,
+                'options' => is_object($filter) ? $filter->options : []
             ];
         });
 
@@ -522,21 +575,25 @@ abstract class DataTable
 
     public function hasRecords(Paginator $paginator): bool
     {
-        return $paginator->isNotEmpty() || ($paginator->isEmpty() && $this->request('search'));
+        return $paginator->isNotEmpty() 
+            || ($paginator->isEmpty() && $this->request('search'))
+            || ($paginator->isEmpty() && $this->request('filters'));
     }
 
     public function recordsNotFound(Paginator $paginator): bool
     {
-        return $paginator->isEmpty() && $this->request('search');
+        return ($paginator->isEmpty() && $this->request('search')) 
+            || ($paginator->isEmpty() && $this->request('filters'));
     }
 
     private function outputData(): array
     {
         $paginator = $this->paginator();
-
+        
         return [
             'data' => $this->transformer($paginator),
             'columns' => $this->columns->values()->all(),
+            'filters' => $this->getFilter(),
             'options' => $this->options,
             'datatable' => $this,
             'paginator' => $paginator
@@ -589,7 +646,8 @@ abstract class DataTable
                 'info' => view($this->getView('info'), $data)->render(),
                 'pagination' => view($this->getView('pagination'), $data)->render(),
                 'length' => view($this->getView('length'), $data)->render(),
-                'search' => view($this->getView('search'), $data)->render()
+                'search' => view($this->getView('search'), $data)->render(),
+                'filter' => view($this->getView('filter'), $data)->render()
             ]
         ];
     }
