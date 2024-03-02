@@ -86,24 +86,37 @@ abstract class DataTable
 
     private function config(?string $key = null, mixed $default = null): mixed
     {
-        $requestedKey = $key;
+        // $requestedKey = $key;
         $key = $key ? 'datatable.' . $key : 'datatable';
 
-        if ($this->queryStringPrefix && $requestedKey === 'request_map') {
-            $requestMap = config($key, $default);
-            $requestMap = array_map(function ($item) {
-                return $this->queryStringPrefix . '_' . $item;
-            }, $requestMap);
+        // if ($this->queryStringPrefix && $requestedKey === 'request_map') {
+        //     $requestMap = config($key, $default);
+        //     $requestMap = array_map(function ($item) {
+        //         return $this->queryStringPrefix . '_' . $item;
+        //     }, $requestMap);
 
-            return $requestMap;
-        }
+        //     return $requestMap;
+        // }
 
         return config($key, $default);
     }
 
+    private function getRequestMap(?string $key = null): string|array|null
+    {
+        $map = $this->config('request_map');
+
+        if ($this->queryStringPrefix) {
+            $map = array_map(function ($item) {
+                return $this->queryStringPrefix . '_' . $item;
+            }, $map);
+        }
+
+        return $key ? data_get($map, $key) : $map;
+    }
+
     public function request(string $key): null|string|array
     {
-        $request = data_get($this->config('request_map'), $key);
+        $request = data_get($this->getRequestMap(), $key);
         // $request = e(strip_tags(request($request, '')));
         return is_null($request) ? null : request()->get($request);
 
@@ -176,6 +189,7 @@ abstract class DataTable
             'order_direction' => $this->orderDirection,
             'per_page' => $this->setPerPage(),
             'filtered' => $this->getActiveFilterCount(),
+            'auto_update_on_filter' => $this->config('auto_update_on_filter'),
             'per_page_options' => $this->perPageOptions,
             'storage' => $this->storage ?? $this->config('storage'),
             'save_state' => $this->saveState ?? $this->config('save_state'),
@@ -188,7 +202,7 @@ abstract class DataTable
             'request' => [
                 'query' => request()->all(),
                 'save' => $this->getSaveableRequest(),
-                'map' =>  $this->config('request_map')
+                'map' =>  $this->getRequestMap()
             ],
             'data' => $this->data,
             'show_header' => $this->showHeader,
@@ -223,7 +237,7 @@ abstract class DataTable
 
     private function setOrderColumn(): ?string
     {
-        if (request()->has($this->config('request_map.order_column'))) {
+        if (request()->has($this->getRequestMap('order_column'))) {
             return $this->request('order_column');
         }
 
@@ -251,7 +265,7 @@ abstract class DataTable
     {
         $direction = $this->request('order_direction');
 
-        if (!request()->has($this->config('request_map.order_direction'))) {
+        if (!request()->has($this->getRequestMap('order_direction'))) {
             $direction = $this->orderDirection;
         }
 
@@ -288,7 +302,7 @@ abstract class DataTable
         $filter = $this->saveStateFilter ?? $this->config('save_state_filter');
         
         $filtered = array_filter(request()->all(), function ($value, $key) use ($filter) {
-            return !in_array(array_search($key, $this->config('request_map')), $filter);
+            return !in_array(array_search($key, $this->getRequestMap()), $filter);
         }, ARRAY_FILTER_USE_BOTH);
 
         return collect($filtered)
@@ -301,9 +315,12 @@ abstract class DataTable
                         $flattened["{$key}[{$subKey}]"] = $subItem;
 
                         if (is_array($subItem)) {
-                            for ($i = 0; $i < count($subItem); $i++) { 
-                                $flattened["{$key}[{$subKey}][{$i}]"] = $subItem[$i];
+                            foreach ($subItem as $subItemKey => $subItemValue) {
+                                $flattened["{$key}[{$subKey}][{$subItemKey}]"] = $subItemValue;
                             }
+                            /*for ($i = 0; $i < count($subItem); $i++) { 
+                                $flattened["{$key}[{$subKey}][{$i}]"] = $subItem[$i];
+                            }*/
                         }
                     }
                 }
@@ -616,6 +633,7 @@ abstract class DataTable
                 'storage' => $this->getOption('storage'),
                 'save_state' => $this->getOption('save_state') ? 'true' : 'false',
                 'auto_update' => $this->getOption('auto_update') ? 'true' : 'false',
+                'auto_update_on_filter' => $this->getOption('auto_update_on_filter') ? 'true' : 'false',
                 'auto_update_interval' => $this->getOption('auto_update_interval'),
                 'page' => $this->getOption('request.map.page'),
                 'search' => $this->getOption('request.map.search'),

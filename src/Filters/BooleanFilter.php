@@ -58,7 +58,7 @@ class BooleanFilter
         return $this;
     }
 
-    public function getFilter(string $column, mixed $value, Builder|QueryBuilder $query): Builder|QueryBuilder|null
+    public function getFilter(string $column, mixed $value, Builder|QueryBuilder $query): Builder|QueryBuilder
     {
         return match ($value) {
             'true' => $this->true ? call_user_func($this->true, $query) : $query->where($column, 1),

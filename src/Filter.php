@@ -2,6 +2,7 @@
 
 namespace VariableSign\DataTable;
 
+use VariableSign\DataTable\Filters\DateFilter;
 use VariableSign\DataTable\Filters\EnumFilter;
 use VariableSign\DataTable\Filters\TextFilter;
 use VariableSign\DataTable\Filters\SelectFilter;
@@ -22,6 +23,11 @@ class Filter
     public function select(): SelectFilter
     {
         return new SelectFilter;
+    }
+
+    public function date(): DateFilter
+    {
+        return new DateFilter;
     }
 
     // public function text(): TextFilter

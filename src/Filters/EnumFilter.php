@@ -35,7 +35,7 @@ class EnumFilter
         return $this;
     }
 
-    public function getFilter(string $column, mixed $value, Builder|QueryBuilder $query): Builder|QueryBuilder|null
+    public function getFilter(string $column, mixed $value, Builder|QueryBuilder $query): Builder|QueryBuilder
     {
         return match ($value) {
             '' => $query,

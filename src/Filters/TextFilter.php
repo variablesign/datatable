@@ -16,7 +16,7 @@ class TextFilter
         return $this;
     }
 
-    public function getFilter(string $column, ?string $key, Builder|QueryBuilder $query): Builder|QueryBuilder|null
+    public function getFilter(string $column, ?string $key, Builder|QueryBuilder $query): Builder|QueryBuilder
     {
         return $query->where($column, 0);
     }

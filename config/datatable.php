@@ -193,6 +193,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Auto Update On Filter
+    |--------------------------------------------------------------------------
+    |
+    | Automatically send a request when a filter input value is changed.
+    | Set to false if you want to manually add a button to trigger filter requests. 
+    |
+    */
+
+    'auto_update_on_filter' => true,
+
+    /*
+    |--------------------------------------------------------------------------
     | Data Attributes
     |--------------------------------------------------------------------------
     |
@@ -208,6 +220,7 @@ return [
         'data-datatable-url' => ':url',
         'data-datatable-storage' => ':storage',
         'data-datatable-save-state' => ':save_state',
+        'data-datatable-auto-filter' => ':auto_update_on_filter',
         'data-datatable-table' => 'data-datatable-section=table',
         'data-datatable-search' => 'data-datatable-section=search',
         'data-datatable-info' => 'data-datatable-section=info',
