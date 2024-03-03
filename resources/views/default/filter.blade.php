@@ -13,5 +13,19 @@
             </div>
         @endif
 
+        <!-- Date -->
+        @if ($filter['element']['type'] == 'date')      
+            <div>
+                <label class="block mb-2">{{ $filter['title'] }}</label>
+
+                @if ($filter['element']['range'])
+                    <input type="date" name="{{ $datatable->getOption('request.map.filters') }}[{{ $column }}][start]" placeholder="{{ $filter['data']['start'] }}" data-datatable-filter/>
+                    <input type="date" name="{{ $datatable->getOption('request.map.filters') }}[{{ $column }}][end]" placeholder="{{ $filter['data']['end'] }}" data-datatable-filter/>
+                @else   
+                    <input type="date" name="{{ $datatable->getOption('request.map.filters') }}[{{ $column }}]" placeholder="{{ $filter['data']['default'] }}" value="{{ $filter['value'] }}" data-datatable-filter/>
+                @endif
+            </div>
+        @endif
+
     @endforeach
 </div>

@@ -9,9 +9,13 @@ class DateFilter
 {
     private bool $range = false;
 
-    private string $from= 'From';
+    private string $start= 'Start date';
 
-    private string $to = 'To';
+    private string $end = 'End date';
+
+    private string $default = 'Select date';
+
+    private ?string $format = null;
 
     public array $options = [];
 
@@ -22,16 +26,30 @@ class DateFilter
         return $this;
     }
 
-    public function from(string $from): self
+    public function start(string $placeholder): self
     {
-        $this->from = $from;
+        $this->start = $placeholder;
         
         return $this;
     }
 
-    public function to(string $to): self
+    public function end(string $placeholder): self
     {
-        $this->to = $to;
+        $this->end = $placeholder;
+        
+        return $this;
+    }
+
+    public function default(string $placeholder): self
+    {
+        $this->default = $placeholder;
+        
+        return $this;
+    }
+
+    public function format(string $format): self
+    {
+        $this->format = $format;
         
         return $this;
     }
@@ -45,19 +63,34 @@ class DateFilter
 
     public function getFilter(string $column, mixed $value, Builder|QueryBuilder $query): Builder|QueryBuilder
     {
-        dd($value);
-        // return match ($value) {
-        //     '' => $query,
-        //     default => $query->where($column, $value)
-        // };
+        $value = $this->formatDate($value);
+
+        if (is_array($value) && array_key_exists('start', $value) && array_key_exists('end', $value)) {
+            return $query->whereDate($column, '>=', $value['start'])
+                ->whereDate($column, '<=', $value['end']);
+        }
+        
+        if (is_array($value) && array_key_exists('start', $value)) {
+            return $query->whereDate($column, '>=', $value['start']);
+        }
+
+        if (is_array($value) && array_key_exists('end', $value)) {
+            return $query->whereDate($column, '<=', $value['end']);
+        }
+
+        if (!is_array($value)) {
+            return $query->whereDate($column, $value);
+        }
+
         return $query;
     }
 
     public function getDataSource(): ?array
     {
         return [
-            'from' => $this->from,
-            'to' => $this->to
+            'default' => $this->default,
+            'start' => $this->start,
+            'end' => $this->end
         ];
     }
 
@@ -67,5 +100,20 @@ class DateFilter
             'type' => 'date',
             'range' => $this->range
         ];
+    }
+
+    private function formatDate(string|array $value): string|array
+    {
+        if (is_null($this->format)) {
+            return $value;
+        }
+
+        if (is_array($value)) {
+            return array_map(function ($date) {
+                return now()->createFromFormat($this->format, $date)->format('Y-m-d');
+            }, $value);
+        }
+
+        return now()->createFromFormat($this->format, $value)->format('Y-m-d');
     }
 }
