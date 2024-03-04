@@ -52,6 +52,8 @@ abstract class DataTable
 
     protected ?bool $autoUpdate = null;
 
+    protected ?bool $autoUpdateOnFilter = null;
+
     protected ?int $autoUpdateInterval = null;
 
     protected ?string $template = null;
@@ -189,7 +191,7 @@ abstract class DataTable
             'order_direction' => $this->orderDirection,
             'per_page' => $this->setPerPage(),
             'filtered' => $this->getActiveFilterCount(),
-            'auto_update_on_filter' => $this->config('auto_update_on_filter'),
+            'auto_update_on_filter' => $this->autoUpdateOnFilter ?? $this->config('auto_update_on_filter'),
             'per_page_options' => $this->perPageOptions,
             'storage' => $this->storage ?? $this->config('storage'),
             'save_state' => $this->saveState ?? $this->config('save_state'),
