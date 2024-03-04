@@ -27,5 +27,24 @@
             </div>
         @endif
 
+        <!-- Text -->
+        @if ($filter['element']['type'] == 'text')      
+            <div>
+                <label>{{ $filter['title'] }}</label>
+                <div>
+                    @if ($filter['element']['operators'])
+                        <select name="{{ $datatable->getOption('request.map.filters') }}[{{ $column }}][operator]" data-datatable-filter>
+                            @foreach ($filter['data'] as $value => $label)  
+                                <option value="{{ $value }}" @selected($value == data_get($filter, 'value.operator'))>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                        <input type="text" name="{{ $datatable->getOption('request.map.filters') }}[{{ $column }}][value]" placeholder="{{ $filter['title'] }}" value="{{ data_get($filter, 'value.value') }}" data-datatable-filter/>
+                    @else
+                        <input type="text" name="{{ $datatable->getOption('request.map.filters') }}[{{ $column }}]" placeholder="{{ $filter['title'] }}" value="{{ data_get($filter, 'value.value') }}" data-datatable-filter/>
+                    @endif
+                </div>
+            </div>
+        @endif
+
     @endforeach
 </div>

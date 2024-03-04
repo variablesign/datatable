@@ -39,7 +39,7 @@ class EnumFilter
     {
         return match ($value) {
             '' => $query,
-            default => $query->where($column, data_get($this->dataSource, $value))
+            default => $query->where($column, $value)
         };
     }
 

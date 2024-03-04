@@ -30,8 +30,8 @@ class Filter
         return new DateFilter;
     }
 
-    // public function text(): TextFilter
-    // {
-    //     return new TextFilter;
-    // }
+    public function text(): TextFilter
+    {
+        return new TextFilter;
+    }
 }

@@ -7,29 +7,63 @@ use Illuminate\Database\Query\Builder as QueryBuilder;
 
 class TextFilter
 {
-    private ?array $operators = null;
+    private bool $operators = false;
 
-    public function operators(array $operators): self
+    public array $options = [];
+
+    public function withOptions(array $options): self
     {
-        $this->operators = $operators;
+        $this->options = $options;
+
+        return $this;
+    }
+
+    public function operators(): self
+    {
+        $this->operators = true;
         
         return $this;
     }
 
-    public function getFilter(string $column, ?string $key, Builder|QueryBuilder $query): Builder|QueryBuilder
+    public function getFilter(string $column, mixed $value, Builder|QueryBuilder $query): Builder|QueryBuilder
     {
-        return $query->where($column, 0);
+        $operator = 'equal_to';
+
+        if (is_array($value)) {
+            $operator = data_get($value, 'operator', $operator);
+            $value = data_get($value, 'value');
+        }
+
+        return match ($operator) {
+            'contains' => $query->where($column, 'like', '%' . $value . '%'),
+            'starts_with' => $query->where($column, 'like', $value . '%'),
+            'ends_with' => $query->where($column, 'like', '%' . $value),
+            'equal_to' => $query->where($column, $value),
+            'not_equal_to' => $query->where($column, '<>', $value),
+            'empty' => $query->where(function ($query) use ($column) {
+                $query->orWhere($column, null)->orWhere($column, '');
+            }),
+            default => $query
+        };
     }
 
     public function getDataSource(): ?array
     {
-        return null;
+        return [
+            'equal_to' => 'Equal to',
+            'contains' => 'Contains',
+            'starts_with' => 'Starts with',
+            'ends_with' => 'Ends with',
+            'not_equal_to' => 'Not equal to',
+            'empty' => 'Empty'
+        ];
     }
 
     public function getElement(): array
     {
         return [
-            'type' => 'text'
+            'type' => 'text',
+            'operators' => $this->operators
         ];
     }
 }
