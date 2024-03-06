@@ -22,6 +22,8 @@ abstract class DataTable
 
     public array $data = [];
 
+    private string $dbQuery;
+
     protected ?string $orderColumn = null;
 
     private ?string $defaultOrderColumn = null;
@@ -404,7 +406,7 @@ abstract class DataTable
 
         $requestFilters = $this->request('filters');
 
-        return $this->dataSource()
+        $query = $this->dataSource()
             ->when($this->request('search'), function ($query) {
                 $query->where(function ($query) {
                     foreach ($this->getSearchableColumns()->pluck('searchable')->flatten()->all() as $column) {
@@ -436,6 +438,10 @@ abstract class DataTable
                     }
                 }
             });
+
+        $this->dbQuery = $query->toRawSql();
+
+        return $query;
     }
 
     private function transformer(Paginator $paginator): array
@@ -661,6 +667,7 @@ abstract class DataTable
             'has_records' => $this->hasRecords($data['paginator']),
             'not_found' => $this->recordsNotFound($data['paginator']),
             'options' => $this->getOption(),
+            'database_query' => $this->dbQuery,
             'html' => [
                 'table' =>  view($this->getView('table'), $data)->render(),
                 'info' => view($this->getView('info'), $data)->render(),

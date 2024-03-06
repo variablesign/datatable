@@ -27,7 +27,7 @@ class TextFilter
 
     public function getFilter(string $column, mixed $value, Builder|QueryBuilder $query): Builder|QueryBuilder
     {
-        $operator = 'equal_to';
+        $operator = '';
 
         if (is_array($value)) {
             $operator = data_get($value, 'operator', $operator);
@@ -35,10 +35,10 @@ class TextFilter
         }
 
         return match ($operator) {
+            '' => $query->where($column, $value),
             'contains' => $query->where($column, 'like', '%' . $value . '%'),
             'starts_with' => $query->where($column, 'like', $value . '%'),
             'ends_with' => $query->where($column, 'like', '%' . $value),
-            'equal_to' => $query->where($column, $value),
             'not_equal_to' => $query->where($column, '<>', $value),
             'empty' => $query->where(function ($query) use ($column) {
                 $query->orWhere($column, null)->orWhere($column, '');
@@ -50,7 +50,7 @@ class TextFilter
     public function getDataSource(): ?array
     {
         return [
-            'equal_to' => 'Equal to',
+            '' => 'Equal to',
             'contains' => 'Contains',
             'starts_with' => 'Starts with',
             'ends_with' => 'Ends with',

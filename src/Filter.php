@@ -5,6 +5,7 @@ namespace VariableSign\DataTable;
 use VariableSign\DataTable\Filters\DateFilter;
 use VariableSign\DataTable\Filters\EnumFilter;
 use VariableSign\DataTable\Filters\TextFilter;
+use VariableSign\DataTable\Filters\NumberFilter;
 use VariableSign\DataTable\Filters\SelectFilter;
 use VariableSign\DataTable\Filters\BooleanFilter;
 
@@ -33,5 +34,10 @@ class Filter
     public function text(): TextFilter
     {
         return new TextFilter;
+    }
+
+    public function number(): NumberFilter
+    {
+        return new NumberFilter;
     }
 }
