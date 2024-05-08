@@ -14,6 +14,14 @@ You can install the package via composer:
 composer require variablesign/datatable
 ```
 
+## Configuration
+
+Publish the datatable config by running this command after installation:
+
+```bash
+php artisan vendor:publish --provider="VariableSign\DataTable\DataTableServiceProvider" --tag="config"
+```
+
 ## Usage
 
 ```php

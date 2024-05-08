@@ -6,7 +6,7 @@
                     @foreach ($columns as $column)  
                         <th {!! $datatable->classAttributes([$column['alignment'], $column['responsive']]) !!}>
                             @if ($column['sortable'])
-                                <a href="#" data-datatable-order-column="{{ $column['alias'] }}" data-datatable-order-direction="{{ ($column['ordered'] && $column['direction'] == 'asc') ? 'desc' : 'asc' }}">
+                                <a href="#" data-datatable-order-column="{{ $column['direction'] == 'asc' ? $column['alias'] : '' }}" data-datatable-order-direction="{{ $datatable->getNextSortDirection($column['direction'], $column['ordered']) }}">
                                     {{ $column['title'] }}
 
                                     @if ($column['ordered'] && $column['direction'] == 'desc')

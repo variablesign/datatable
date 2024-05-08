@@ -13,6 +13,56 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Save State
+    |--------------------------------------------------------------------------
+    |
+    | Saves the state of table by storing query parameters of each request.
+    |
+    */
+
+    'save_state' => false,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Save State Filter
+    |--------------------------------------------------------------------------
+    |
+    | Set the names of the request parameters you want to exclude from being save.
+    | Example: You can add "page" to the array if don't want to save the last viewed page.
+    | You can use any of the keys from the "request_map" option below.
+    |
+    */
+
+    'save_state_filter' => [],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Storage
+    |--------------------------------------------------------------------------
+    |
+    | Table states are stored in the browser's "local" storage by default.
+    | You can set the value to "session" if you just want the stored 
+    | data to be available per session.
+    |
+    */
+
+    'storage' => 'local',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Deep Search
+    |--------------------------------------------------------------------------
+    |
+    | Deep search breaks down search keywords and searches for each one separately.
+    | Note: This affects the performance of search queries when your table
+    | contains a huge amount of data.
+    |
+    */
+
+    'deep_search' => false,
+
+    /*
+    |--------------------------------------------------------------------------
     | Per Page
     |--------------------------------------------------------------------------
     |
@@ -106,14 +156,16 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Push State
+    | Auto Update
     |--------------------------------------------------------------------------
     |
-    | Sync the query string from the datatable URL with the URL of the page.
+    | Auto refresh table after a set interval in seconds.
     |
     */
 
-    'push_state' => true,
+    'auto_update' => false,
+
+    'auto_update_interval' => 60,
 
     /*
     |--------------------------------------------------------------------------
@@ -135,8 +187,21 @@ return [
         'search' => 'q',
         'order_column' => 'order_column',
         'order_direction' => 'order_direction',
-        'per_page' => 'per_page'
+        'per_page' => 'per_page',
+        'filters' => 'filters'
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Auto Update On Filter
+    |--------------------------------------------------------------------------
+    |
+    | Automatically send a request when a filter input value is changed.
+    | Set to false if you want to manually add a button to trigger filter requests. 
+    |
+    */
+
+    'auto_update_on_filter' => true,
 
     /*
     |--------------------------------------------------------------------------
@@ -150,13 +215,18 @@ return [
     'attributes' => [
         'data-uk-datatable' => 'true',
         'data-datatable-id' => ':id',
-        'data-datatable-push-state' => ':push_state',
+        'data-datatable-auto-update' => ':auto_update',
+        'data-datatable-auto-update-interval' => ':auto_update_interval',
         'data-datatable-url' => ':url',
+        'data-datatable-storage' => ':storage',
+        'data-datatable-save-state' => ':save_state',
+        'data-datatable-auto-filter' => ':auto_update_on_filter',
         'data-datatable-table' => 'data-datatable-section=table',
         'data-datatable-search' => 'data-datatable-section=search',
         'data-datatable-info' => 'data-datatable-section=info',
         'data-datatable-length' => 'data-datatable-section=length',
         'data-datatable-pagination' => 'data-datatable-section=pagination',
+        'data-datatable-filters' => 'data-datatable-section=filters',
         'data-datatable-region' => 'data-datatable-section=region',
         'data-datatable-loader' => 'data-datatable-section=loader',
         'data-datatable-page-length' => 'data-datatable-per-page',
@@ -165,11 +235,13 @@ return [
         'data-datatable-direction' => 'data-datatable-order-direction',
         'data-datatable-search-input' => 'data-datatable-search-input',
         'data-datatable-checkbox' => 'data-datatable-checkbox',
-        'data-datatable-request--page' => 'page',
-        'data-datatable-request--search' => 'q',
-        'data-datatable-request--order-column' => 'order_column',
-        'data-datatable-request--order-direction' => 'order_direction',
-        'data-datatable-request--per-page' => 'per_page'
+        'data-datatable-filter' => 'data-datatable-filter',
+        'data-datatable-request--page' => ':page',
+        'data-datatable-request--search' => ':search',
+        'data-datatable-request--order-column' => ':order_column',
+        'data-datatable-request--order-direction' => ':order_direction',
+        'data-datatable-request--per-page' => ':per_page',
+        'data-datatable-request--filters' => ':filters'
     ],
 
 ];
