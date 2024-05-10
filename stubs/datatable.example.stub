@@ -3,7 +3,7 @@
 namespace {{ datatableNamespace }};
 
 use {{ namespacedModel }};
-use App\Models\Unit;
+use App\Models\Role;
 use VariableSign\DataTable\DataTable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\View\View;
@@ -49,18 +49,18 @@ class {{ datatableClass }} extends DataTable
                     return $model->first_name . ' ' . $model->last_name;
                 }),
 
-            Column::name('unit')
-                ->title('Management Unit')
+            Column::name('role')
+                ->title('Role')
                 ->searchable(function (Builder $query, string $keyword) {
-                    $query->orWhereHas('unit', function (Builder $query) use ($keyword) {
+                    $query->orWhereHas('role', function (Builder $query) use ($keyword) {
                         $query->where('name', 'like', '%'. $keyword .'%');
                     });
                 })
                 ->sortable(function (Builder $query, $direction) {
-                    $query->orderBy(Unit::select('name')->whereColumn('units.id', 'users.unit_id'), $direction);
+                    $query->orderBy(Role::select('name')->whereColumn('roles.id', 'users.role_id'), $direction);
                 })
                 ->edit(function (mixed $value, {{ model }} $model, int $index) {
-                    return data_get($model->unit, 'name');
+                    return $model->role->name;
                 }),
 
             Column::name('actions')
@@ -91,7 +91,7 @@ class {{ datatableClass }} extends DataTable
 
     protected function dataSource(): Builder
     {
-        return {{ model }}::query();
+        return {{ model }}::with('role');
     }
 
     protected function emptyState(): string|View
