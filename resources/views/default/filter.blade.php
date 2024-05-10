@@ -16,7 +16,7 @@
         <!-- Date -->
         @if ($filter['element']['type'] == 'date')      
             <div>
-                <label class="block mb-2">{{ $filter['title'] }}</label>
+                <label>{{ $filter['title'] }}</label>
 
                 @if ($filter['element']['range'])
                     <input type="date" name="{{ $datatable->getOption('request.map.filters') }}[{{ $column }}][start]" placeholder="{{ $filter['data']['start'] }}" data-datatable-filter/>

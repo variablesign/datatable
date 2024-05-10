@@ -4,9 +4,10 @@ namespace {{ datatableNamespace }};
 
 use {{ namespacedModel }};
 use App\Models\Role;
-use VariableSign\DataTable\DataTable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\View\View;
+use VariableSign\DataTable\Filter;
+use VariableSign\DataTable\DataTable;
 use VariableSign\DataTable\Facades\Column;
 use VariableSign\DataTable\Facades\Row;
 use VariableSign\DataTable\Facades\Table;
@@ -58,6 +59,12 @@ class {{ datatableClass }} extends DataTable
                 })
                 ->sortable(function (Builder $query, $direction) {
                     $query->orderBy(Role::select('name')->whereColumn('roles.id', 'users.role_id'), $direction);
+                })
+                ->filterable(function (Filter $filter) {
+                    return $filter->select()
+                        ->dataSource(Role::all())
+                        ->value('id')
+                        ->label('name');
                 })
                 ->edit(function (mixed $value, {{ model }} $model, int $index) {
                     return $model->role->name;
