@@ -444,6 +444,11 @@ abstract class DataTable
         return $query;
     }
 
+    public function getQueryBuilder(): Builder|QueryBuilder
+    {
+        return $this->queryBuilder();
+    }
+
     private function transformer(Paginator $paginator): array
     {
         $data = [];
@@ -719,5 +724,11 @@ abstract class DataTable
             'keyword' => $keyword,
             'table' => $this->tableName
         ]);
+    }
+
+    public function exporter(Builder|QueryBuilder $query, ?string $format)
+    {
+        return throw new \Exception(__METHOD__ . ' method must be defined and return an HTTP response.');
+        ;
     }
 }

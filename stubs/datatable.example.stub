@@ -5,6 +5,7 @@ namespace {{ datatableNamespace }};
 use {{ namespacedModel }};
 use App\Models\Role;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 use Illuminate\View\View;
 use VariableSign\DataTable\Filter;
 use VariableSign\DataTable\DataTable;
@@ -96,7 +97,7 @@ class {{ datatableClass }} extends DataTable
         ];
     }
 
-    protected function dataSource(): Builder
+    protected function dataSource(): Builder|QueryBuilder
     {
         return {{ model }}::with('role');
     }
@@ -109,5 +110,11 @@ class {{ datatableClass }} extends DataTable
     protected function notFound(?string $keyword): string|View
     {
         return 'No results found for ' . $keyword;
+    }
+
+    public function exporter(Builder|QueryBuilder $query, ?string $format)
+    {
+        return 'Exporter with an HTTP response.';
+        ;
     }
 }

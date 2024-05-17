@@ -5,6 +5,7 @@ namespace {{ datatableNamespace }};
 use {{ namespacedModel }};
 use VariableSign\DataTable\DataTable;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 use VariableSign\DataTable\Facades\Column;
 use VariableSign\DataTable\Facades\Row;
 use VariableSign\DataTable\Facades\Table;
@@ -33,7 +34,7 @@ class {{ datatableClass }} extends DataTable
         ];
     }
 
-    protected function dataSource(): Builder
+    protected function dataSource(): Builder|QueryBuilder
     {
         return {{ model }}::query();
     }

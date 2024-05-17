@@ -8,6 +8,10 @@ Route::prefix(config('datatable.route.prefix'))
         Route::get(config('datatable.route.uri'), function (string $table) {
             $formattedName = 'datatable.' . str($table)->replace('.', '_')->toString();
             $datatable = datatable($table, session($formattedName . '.data', []), true);
+
+            if (request()->has($datatable->getOption('request.map.export'))) {
+                return $datatable->exporter($datatable->getQueryBuilder(), $datatable->request('export'));
+            }
     
             return response()->json($datatable->api());
         })
