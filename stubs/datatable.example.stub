@@ -115,6 +115,5 @@ class {{ datatableClass }} extends DataTable
     public function exporter(Builder|QueryBuilder $query, ?string $format)
     {
         return 'Exporter with an HTTP response.';
-        ;
     }
 }

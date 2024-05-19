@@ -90,17 +90,7 @@ abstract class DataTable
 
     private function config(?string $key = null, mixed $default = null): mixed
     {
-        // $requestedKey = $key;
         $key = $key ? 'datatable.' . $key : 'datatable';
-
-        // if ($this->queryStringPrefix && $requestedKey === 'request_map') {
-        //     $requestMap = config($key, $default);
-        //     $requestMap = array_map(function ($item) {
-        //         return $this->queryStringPrefix . '_' . $item;
-        //     }, $requestMap);
-
-        //     return $requestMap;
-        // }
 
         return config($key, $default);
     }
@@ -121,10 +111,8 @@ abstract class DataTable
     public function request(string $key): null|string|array
     {
         $request = data_get($this->getRequestMap(), $key);
-        // $request = e(strip_tags(request($request, '')));
-        return is_null($request) ? null : request()->get($request);
 
-        // return empty($request) ? null : $request;
+        return is_null($request) ? null : request()->get($request);
     }
 
     private function setColumns(bool $withColumns): Collection
@@ -729,6 +717,5 @@ abstract class DataTable
     public function exporter(Builder|QueryBuilder $query, ?string $format)
     {
         return throw new \Exception(__METHOD__ . ' method must be defined and return an HTTP response.');
-        ;
     }
 }
