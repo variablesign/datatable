@@ -188,7 +188,8 @@ return [
         'order_column' => 'order_column',
         'order_direction' => 'order_direction',
         'per_page' => 'per_page',
-        'filters' => 'filters'
+        'filters' => 'filters',
+        'export' => 'export'
     ],
 
     /*
@@ -229,6 +230,7 @@ return [
         'data-datatable-filters' => 'data-datatable-section=filters',
         'data-datatable-region' => 'data-datatable-section=region',
         'data-datatable-loader' => 'data-datatable-section=loader',
+        'data-datatable-export' => 'data-datatable-section=export',
         'data-datatable-page-length' => 'data-datatable-per-page',
         'data-datatable-index' => 'data-datatable-page-index',
         'data-datatable-order' => 'data-datatable-order-column',

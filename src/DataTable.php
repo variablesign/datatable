@@ -191,6 +191,7 @@ abstract class DataTable
             'auto_update_interval' => $this->autoUpdateInterval,
             'on_each_side' => $this->onEachSide ?? $this->config('on_each_side'),
             'search_placeholder' => $this->getSearchPlaceholder($this->searchPlaceholder),
+            'url' => request()->fullUrl(),
             'request' => [
                 'query' => request()->all(),
                 'save' => $this->getSaveableRequest(),
@@ -667,7 +668,8 @@ abstract class DataTable
                 'pagination' => view($this->getView('pagination'), $data)->render(),
                 'length' => view($this->getView('length'), $data)->render(),
                 'search' => view($this->getView('search'), $data)->render(),
-                'filter' => view($this->getView('filter'), $data)->render()
+                'filter' => view($this->getView('filter'), $data)->render(),
+                'export' => view($this->getView('export'), $data)->render()
             ]
         ];
     }

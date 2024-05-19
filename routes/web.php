@@ -16,4 +16,14 @@ Route::prefix(config('datatable.route.prefix'))
             return response()->json($datatable->api());
         })
         ->name(config('datatable.route.name'));
+
+        Route::post(config('datatable.route.uri'), function (string $table) {
+            $formattedName = 'datatable.' . str($table)->replace('.', '_')->toString();
+            $datatable = datatable($table, session($formattedName . '.data', []), true);
+
+            if (request()->has($datatable->getOption('request.map.export'))) {
+                return $datatable->exporter($datatable->getQueryBuilder(), $datatable->request('export'));
+            }
+        })
+        ->name(config('datatable.route.name') . '.store');
     });
