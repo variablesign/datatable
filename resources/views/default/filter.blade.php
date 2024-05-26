@@ -52,7 +52,7 @@
                 <label>{{ $filter['title'] }}</label>
                 <div class="flex gap-4">
                     <input type="number" name="{{ $datatable->getOption('request.map.filters') }}[{{ $column }}][min]" placeholder="{{ $filter['data']['min'] }}" value="{{ data_get($filter, 'value.min') }}" data-datatable-filter/>
-                    <input type="number" name="{{ $datatable->getOption('request.map.filters') }}[{{ $column }}][max]" placeholder="{{ $filter['data']['min'] }}" value="{{ data_get($filter, 'value.max') }}" data-datatable-filter/>
+                    <input type="number" name="{{ $datatable->getOption('request.map.filters') }}[{{ $column }}][max]" placeholder="{{ $filter['data']['max'] }}" value="{{ data_get($filter, 'value.max') }}" data-datatable-filter/>
                 </div>
             </div>
         @endif
